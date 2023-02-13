@@ -19,7 +19,7 @@ fn main() {
 
             //"Walk" a directory and list it's contents
             1 => {
-                let dir_path: String = file_path_prompt();
+                let dir_path: String = string_prompt("Enter the path of the directory to walk:");
                 println!();
                 custodian::walk_dir(dir_path.as_str());
             },
@@ -27,15 +27,29 @@ fn main() {
             //Search a directory for duplicate files BY NAME
             2 => {
 
-                let dir_path: String = file_path_prompt();
+                //create & assign dir_path variable as String from string_prompt()
+                let dir_path: String = string_prompt("Enter the path of the directory to search:");
 
+                //create & assign file_names variable as HashMap<String, String> from HashMap::new()
                 let mut file_names: HashMap<String, String> = HashMap::new();
+                //create & assign duplicate_files variable as Vec<(String, String)> from vec!{}
                 let mut duplicate_files: Vec<(String, String)> = vec!{};
 
                 println!();
+                //find NAME duplicates in directory at file path dir_path.as_str()
+                //place discovered files in file_names HashMap<key, value>
+                //place duplicate files in duplicate_files Vec<(file name, file path)>
                 custodian::find_duplicates_by_name(dir_path.as_str(), &mut file_names, &mut duplicate_files);
 
-                let csv_path: String = file_path_prompt();
+                println!();
+                println!("HashMap currently has {} entries", file_names.len());
+
+                //sort the duplicate files alphabetically prior to CSV export
+                duplicate_files.sort();
+
+                //create & assign csv_path variable as String from string_prompt()
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                //export duplicate files in duplicate_files found from search to CSV file at path csv_path.as_str()
                 custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files);
 
             },
@@ -106,10 +120,10 @@ fn menu() -> u8 {
 
 }
 
-fn file_path_prompt() -> String {
+fn string_prompt(prompt: &str) -> String {
 
     println!();
-    println!("Enter the file path:");
+    println!("{}", prompt);
 
     //create & assign selection variable to new String
     let mut selection: String = String::new();
@@ -131,7 +145,7 @@ fn file_path_prompt() -> String {
         Err(_e1) => {
             println!("Invalid user input!");
             //recursively call function
-            file_path_prompt()
+            string_prompt(prompt)
         },
 
     }

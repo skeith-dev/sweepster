@@ -1,6 +1,6 @@
 use csv;
-use std::fs::{self, DirEntry};
 use std::collections::HashMap;
+use std::fs::{self, DirEntry};
 
 
 pub fn walk_dir(dir_path: &str) {
@@ -197,24 +197,36 @@ fn name_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(String, String)>) {
 
+    //create & assign duplicate_files_vec variable to Vec<[&str; 2]> from vec!{}
+    //FOR WRITER; writer can write "results" in &str format
     let mut duplicate_files_vec: Vec<[&str; 2]> = vec!{["file name", "file path"]};
 
+    //iterate through each duplicate file in duplicate_files
     for i in 0..duplicate_files.len() {
+        //push duplicate file entry onto duplicate_files_vec
         duplicate_files_vec.push([duplicate_files[i].0.as_str(), duplicate_files[i].1.as_str()]);
     }
 
+    //create & assign writer_result variable to Result<> from from_path()
     let writer_result: Result<csv::Writer<fs::File>, csv::Error> = csv::Writer::from_path(file_path);
+    //match writer_result
     match writer_result {
 
+        //if Ok...
         Ok(mut writer) => {
 
+            //iterate through each duplicate file in duplicate_files_vec
             for i in 0..duplicate_files_vec.len() {
 
+                //create & assign write_record_result variable to Result<> from write_record()
                 let write_record_result: Result<(), csv::Error> = writer.write_record(duplicate_files_vec[i]);
+                //match write_record_result
                 match write_record_result {
 
+                    //if Ok...
                     Ok(_) => {},
 
+                    //if Err...
                     Err(_) => {
                         println!("Could not write \"{:?}\" to {}", duplicate_files_vec[i], file_path);
                     },
@@ -224,6 +236,7 @@ pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(String, S
             }
         },
 
+        //if Err...
         Err(_) => {
             println!("Could not create CSV writer for filepath: {}", file_path);
         },
