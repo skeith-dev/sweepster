@@ -54,6 +54,30 @@ fn main() {
 
             },
 
+            3 => {
+
+                //create & assign dir_path variable as String from string_prompt()
+                let dir_path: String = string_prompt("Enter the path of the directory to search:");
+
+                //create & assign file_types variable as Vec<Vec<String>> from vec!{}
+                let mut file_types: Vec<Vec<String>> = vec!{};
+                //create & assign duplicate_files variable as Vec<(String, String)> from vec!{}
+                let mut duplicate_files: Vec<(String, String)> = vec!{};
+
+                println!();
+                custodian::organize_files_by_type(&dir_path, &mut file_types);
+                custodian::find_duplicate_files_by_size(&mut file_types, & mut duplicate_files);
+                
+                //sort the duplicate files alphabetically prior to CSV export
+                duplicate_files.sort();
+
+                //create & assign csv_path variable as String from string_prompt()
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                //export duplicate files in duplicate_files found from search to CSV file at path csv_path.as_str()
+                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files);
+
+            },
+
             //Quit
             0 => {
                 break;
@@ -72,6 +96,7 @@ fn menu() -> u8 {
     println!();
     println!("1. \"Walk\" a directory and list it's contents");
     println!("2. Search a directory for duplicate files BY NAME");
+    println!("3. Search a directory for duplicate files BY FILE SIZE");
     println!("0. Quit");
     println!();
 
