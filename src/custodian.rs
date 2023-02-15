@@ -9,7 +9,7 @@ use std::path::Path;
 //"GET FROM" functions
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-fn file_path_from_dir_entry(dir_entry: &DirEntry) -> &str {
+fn file_path_from_dir_entry(dir_entry: &DirEntry) -> String {
 
     //create & assign dir_entry_buff to PathBuf from path()
     let dir_entry_buff: std::path::PathBuf = dir_entry.path();
@@ -21,20 +21,20 @@ fn file_path_from_dir_entry(dir_entry: &DirEntry) -> &str {
 
         //if Some...
         Some(file_path) => {
-            return file_path;
+            return String::from(file_path);
         },
 
         //if None...
         None => {
             println!("Could not parse DirEntry into file path &str");
-            return "";
+            return String::from("");
         },
 
     }
 
 }
 
-fn file_name_from_dir_entry(dir_entry: &DirEntry) -> &str {
+fn file_name_from_dir_entry(dir_entry: &DirEntry) -> String {
 
     //create & assign dir_entry_buff to OsString from file_name()
     let dir_entry_os_string: std::ffi::OsString = dir_entry.file_name();
@@ -46,35 +46,35 @@ fn file_name_from_dir_entry(dir_entry: &DirEntry) -> &str {
 
         //if Some...
         Some(file_name) => {
-            return file_name;
+            return String::from(file_name);
         },
 
         //if None...
         None => {
             println!("Could not parse DirEntry into file name &str");
-            return "";
+            return String::from("");
         },
 
     }
 
 }
 
-fn file_name_from_file_path(file_path: &str) -> &str {
+fn file_name_from_file_path(file_path: &str) -> String {
 
     let name_option: Option<&str> = Path::new(file_path).file_name().and_then(OsStr::to_str);
     match name_option {
-        Some(name) => name,
-        None => "",
+        Some(name) => String::from(name),
+        None => String::from(""),
     }
 
 }
 
-fn file_extension_from_file_path(file_path: &str) -> &str {
+fn file_extension_from_file_path(file_path: &str) -> String {
 
     let extension_option: Option<&str> = Path::new(file_path).extension().and_then(OsStr::to_str);
     match extension_option {
-        Some(extension) => extension,
-        None => "",
+        Some(extension) => String::from(extension),
+        None => String::from(""),
     }
 
 }
@@ -131,29 +131,29 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec
                         if dir_entry.path().is_dir() {
 
                             //create & assign file_path variable to String from path_from_dir_entry
-                            let file_path: &str = file_path_from_dir_entry(&dir_entry);
+                            let file_path: String = file_path_from_dir_entry(&dir_entry);
                             //recursively call function
-                            organize_files_by_type(file_path, file_types);
+                            organize_files_by_type(file_path.as_str(), file_types);
 
                         //if the entry in the directory is a file...
                         } else {
 
                             //create & assign file_path variable to String from path_from_dir_entry()
-                            let file_path: &str = file_path_from_dir_entry(&dir_entry);
+                            let file_path: String = file_path_from_dir_entry(&dir_entry);
                             //create & assign file_name variable to String from name_from_dir_entry()
-                            let file_extension: &str = file_extension_from_file_path(file_path);
+                            let file_extension: String = file_extension_from_file_path(file_path.as_str());
 
                             //if the file_types HashMap already contains the file extension...
-                            if file_types.contains_key(file_extension) {
+                            if file_types.contains_key(file_extension.as_str()) {
 
                                 //create & assign extension_vec_option variable to Option<> from get_mut()
                                 //get_mut() returns a mutable reference (wrapped in an Option) to the value at the key
-                                let extension_vec_option: Option<&mut Vec<&str>> = file_types.get_mut(file_extension);
+                                let extension_vec_option: Option<&mut Vec<&str>> = file_types.get_mut(file_extension.as_str());
                                 match extension_vec_option {
                                     //if Some...
                                     Some(extension_vec) => {
                                         //push file entry file type vector
-                                        extension_vec.push(file_path);
+                                        extension_vec.push(file_path.as_str());
                                     },
                                     //if None...
                                     None => {
@@ -163,7 +163,7 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec
 
                             //if the file_types HashMap DOES NOT already contain the file extension...
                             } else {
-                                file_types.insert(file_extension, vec!{file_path});
+                                file_types.insert(file_extension.as_str(), vec!{file_path.as_str()});
                             }
 
                         }
@@ -200,14 +200,14 @@ pub fn find_duplicates_by_name(same_type_files: Vec<&str>, duplicate_files: &mut
 
     for i in 0..same_type_files.len() {
 
-        let file_name: &str = file_name_from_file_path(same_type_files[i]);
+        let file_name: String = file_name_from_file_path(same_type_files[i]);
 
-        let duplicate_file_result: Option<&str> = files_by_name.insert(file_name, same_type_files[i]);
+        let duplicate_file_result: Option<&str> = files_by_name.insert(file_name.as_str(), same_type_files[i]);
         match duplicate_file_result {
 
             Some(duplicate_file) => {
                 println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name, duplicate_file));
+                duplicate_files.push((file_name.as_str(), duplicate_file));
             },
 
             None => {},
@@ -224,15 +224,15 @@ pub fn find_duplicate_files_by_size(same_type_files: Vec<&str>, duplicate_files:
 
     for i in 0..same_type_files.len() {
 
-        let file_name = file_name_from_file_path(same_type_files[i]);
-        let file_size = file_size_from_file_path(same_type_files[i]);
+        let file_name: String = file_name_from_file_path(same_type_files[i]);
+        let file_size: u64 = file_size_from_file_path(same_type_files[i]);
 
         let duplicate_file_result: Option<&str> = files_by_name.insert(file_size, same_type_files[i]);
         match duplicate_file_result {
 
             Some(duplicate_file) => {
                 println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name, duplicate_file));
+                duplicate_files.push((file_name.as_str(), duplicate_file));
             },
 
             None => {},
@@ -294,7 +294,5 @@ pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(&str, &st
         },
 
     }
-
-    
 
 }

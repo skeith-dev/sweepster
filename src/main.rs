@@ -20,18 +20,18 @@ fn main() {
             //Search a directory for duplicate files BY NAME
             1 => {
 
-                let dir_path: &str = str_prompt("Enter the path of the directory to search BY NAME:");
+                let dir_path: String = string_prompt("Enter the path of the directory to search BY NAME:");
 
                 let mut file_types: HashMap<&str, Vec<&str>> = HashMap::new();
-                custodian::organize_files_by_type(dir_path, &mut file_types);
+                custodian::organize_files_by_type(dir_path.as_str(), &mut file_types);
 
                 let mut duplicate_files: Vec<(&str, &str)> = vec!{};
                 for (_key, value) in file_types {
                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
                 }
                 
-                let csv_path = str_prompt("Enter the path of the CSV file to export search results to:");
-                custodian::export_duplicates_to_csv(csv_path, duplicate_files);
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files);
                 
             },
 
@@ -102,7 +102,7 @@ fn menu() -> u8 {
 
 }
 
-fn str_prompt(prompt: &str) -> &str {
+fn string_prompt(prompt: &str) -> String {
 
     println!();
     println!("{}", prompt);
@@ -120,14 +120,14 @@ fn str_prompt(prompt: &str) -> &str {
             //re-assign selection variable to String from selection.trim()
             //re-assignment of selection frees memory of old selection
             //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
-            return selection.trim();
+            return String::from(selection.trim());
         },
 
         //if Err...
         Err(_e1) => {
             println!("Invalid user input!");
             //recursively call function
-            return str_prompt(prompt);
+            return string_prompt(prompt);
         },
 
     }
