@@ -22,17 +22,39 @@ fn main() {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search BY NAME:");
 
-                let mut file_types: HashMap<&str, Vec<&str>> = HashMap::new();
+                let mut file_types: HashMap<String, Vec<String>> = HashMap::new();
                 custodian::organize_files_by_type(dir_path.as_str(), &mut file_types);
 
-                let mut duplicate_files: Vec<(&str, &str)> = vec!{};
+                let mut duplicate_files: Vec<(String, String)> = vec!{};
                 for (_key, value) in file_types {
                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
                 }
+
+                duplicate_files.sort();
                 
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
                 custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files);
                 
+            },
+
+            //Search a directory for duplicate files BY SIZE
+            2 => {
+
+                let dir_path: String = string_prompt("Enter the path of the directory to search BY NAME:");
+
+                let mut file_types: HashMap<String, Vec<String>> = HashMap::new();
+                custodian::organize_files_by_type(dir_path.as_str(), &mut file_types);
+
+                let mut duplicate_files: Vec<(String, String)> = vec!{};
+                for (_key, value) in file_types {
+                    custodian::find_duplicates_by_size(value, &mut duplicate_files);
+                }
+                
+                duplicate_files.sort();
+
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files);
+
             },
 
             //Quit
@@ -51,9 +73,8 @@ fn main() {
 fn menu() -> u8 {
 
     println!();
-    println!("1. \"Walk\" a directory and list it's contents");
-    println!("2. Search a directory for duplicate files BY NAME");
-    println!("3. Search a directory for duplicate files BY FILE SIZE");
+    println!("1. Search a directory for duplicate files BY NAME");
+    println!("2. Search a directory for duplicate files BY SIZE");
     println!("0. Quit");
     println!();
 

@@ -102,7 +102,7 @@ fn file_size_from_file_path(file_path: &str) -> u64 {
 //ORGANIZING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec<&str>>) {
+pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<String, Vec<String>>) {
 
     //create & assign read_dir_result variable to Result<> from read_dir()
     let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
@@ -148,12 +148,12 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec
 
                                 //create & assign extension_vec_option variable to Option<> from get_mut()
                                 //get_mut() returns a mutable reference (wrapped in an Option) to the value at the key
-                                let extension_vec_option: Option<&mut Vec<&str>> = file_types.get_mut(file_extension.as_str());
+                                let extension_vec_option: Option<&mut Vec<String>> = file_types.get_mut(file_extension.as_str());
                                 match extension_vec_option {
                                     //if Some...
                                     Some(extension_vec) => {
                                         //push file entry file type vector
-                                        extension_vec.push(file_path.as_str());
+                                        extension_vec.push(file_path);
                                     },
                                     //if None...
                                     None => {
@@ -163,7 +163,7 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec
 
                             //if the file_types HashMap DOES NOT already contain the file extension...
                             } else {
-                                file_types.insert(file_extension.as_str(), vec!{file_path.as_str()});
+                                file_types.insert(file_extension, vec!{file_path});
                             }
 
                         }
@@ -194,20 +194,20 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<&str, Vec
 //CLEANING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn find_duplicates_by_name(same_type_files: Vec<&str>, duplicate_files: &mut Vec<(&str, &str)>) {
+pub fn find_duplicates_by_name(same_type_files: Vec<String>, duplicate_files: &mut Vec<(String, String)>) {
 
-    let mut files_by_name: HashMap<&str, &str> = HashMap::new();
+    let mut files_by_name: HashMap<String, &str> = HashMap::new();
 
     for i in 0..same_type_files.len() {
 
-        let file_name: String = file_name_from_file_path(same_type_files[i]);
+        let file_name: String = file_name_from_file_path(same_type_files[i].as_str());
 
-        let duplicate_file_result: Option<&str> = files_by_name.insert(file_name.as_str(), same_type_files[i]);
+        let duplicate_file_result: Option<&str> = files_by_name.insert(file_name.clone(), same_type_files[i].as_str());
         match duplicate_file_result {
 
             Some(duplicate_file) => {
                 println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name.as_str(), duplicate_file));
+                duplicate_files.push((file_name, String::from(duplicate_file)));
             },
 
             None => {},
@@ -218,21 +218,21 @@ pub fn find_duplicates_by_name(same_type_files: Vec<&str>, duplicate_files: &mut
 
 }
 
-pub fn find_duplicate_files_by_size(same_type_files: Vec<&str>, duplicate_files: &mut Vec<(&str, &str)>) {
+pub fn find_duplicates_by_size(same_type_files: Vec<String>, duplicate_files: &mut Vec<(String, String)>) {
 
     let mut files_by_name: HashMap<u64, &str> = HashMap::new();
 
     for i in 0..same_type_files.len() {
 
-        let file_name: String = file_name_from_file_path(same_type_files[i]);
-        let file_size: u64 = file_size_from_file_path(same_type_files[i]);
+        let file_name: String = file_name_from_file_path(same_type_files[i].as_str());
+        let file_size: u64 = file_size_from_file_path(same_type_files[i].as_str());
 
-        let duplicate_file_result: Option<&str> = files_by_name.insert(file_size, same_type_files[i]);
+        let duplicate_file_result: Option<&str> = files_by_name.insert(file_size, same_type_files[i].as_str());
         match duplicate_file_result {
 
             Some(duplicate_file) => {
                 println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name.as_str(), duplicate_file));
+                duplicate_files.push((file_name, String::from(duplicate_file)));
             },
 
             None => {},
@@ -247,7 +247,7 @@ pub fn find_duplicate_files_by_size(same_type_files: Vec<&str>, duplicate_files:
 //ORGANIZING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(&str, &str)>) {
+pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(String, String)>) {
 
     //create & assign duplicate_files_vec variable to Vec<[&str; 2]> from vec!{}
     //FOR WRITER; writer can write "results" in &str format
@@ -256,7 +256,7 @@ pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(&str, &st
     //iterate through each duplicate file in duplicate_files
     for i in 0..duplicate_files.len() {
         //push duplicate file entry onto duplicate_files_vec
-        duplicate_files_vec.push([duplicate_files[i].0, duplicate_files[i].1]);
+        duplicate_files_vec.push([duplicate_files[i].0.as_str(), duplicate_files[i].1.as_str()]);
     }
 
     //create & assign writer_result variable to Result<> from from_path()
