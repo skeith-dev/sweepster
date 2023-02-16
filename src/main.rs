@@ -9,7 +9,7 @@ fn main() {
     
     //introductory prompt
     println!("\n{}", to_block_string("SWEEPSTER"));
-    println!("\nYour very own command-line file custodian\n\n");
+    println!("\nYour very own command-line file custodian\n");
 
     loop {
 
@@ -49,7 +49,7 @@ fn main() {
                 for (_key, value) in file_types {
                     custodian::find_duplicates_by_size(value, &mut duplicate_files);
                 }
-                
+
                 duplicate_files.sort();
 
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
