@@ -202,12 +202,12 @@ pub fn find_duplicates_by_name(same_type_files: Vec<String>, duplicate_files: &m
 
         let file_name: String = file_name_from_file_path(same_type_files[i].as_str());
 
-        let duplicate_file_result: Option<&str> = files_by_name.insert(file_name.clone(), same_type_files[i].as_str());
-        match duplicate_file_result {
+        let original_file_result: Option<&str> = files_by_name.insert(file_name.clone(), same_type_files[i].as_str());
+        match original_file_result {
 
-            Some(duplicate_file) => {
-                println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name, String::from(duplicate_file)));
+            Some(original_file) => {
+                println!("Found duplicate file: {}", same_type_files[i]);
+                duplicate_files.push((String::from(original_file), same_type_files[i].clone()));
             },
 
             None => {},
@@ -224,15 +224,14 @@ pub fn find_duplicates_by_size(same_type_files: Vec<String>, duplicate_files: &m
 
     for i in 0..same_type_files.len() {
 
-        let file_name: String = file_name_from_file_path(same_type_files[i].as_str());
         let file_size: u64 = file_size_from_file_path(same_type_files[i].as_str());
 
-        let duplicate_file_result: Option<&str> = files_by_name.insert(file_size, same_type_files[i].as_str());
-        match duplicate_file_result {
+        let original_file_result: Option<&str> = files_by_name.insert(file_size, same_type_files[i].as_str());
+        match original_file_result {
 
-            Some(duplicate_file) => {
-                println!("Found duplicate file: {}", duplicate_file);
-                duplicate_files.push((file_name, String::from(duplicate_file)));
+            Some(original_file) => {
+                println!("Found duplicate file: {}", same_type_files[i]);
+                duplicate_files.push((String::from(original_file), same_type_files[i].clone()));
             },
 
             None => {},
@@ -251,7 +250,7 @@ pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(String, S
 
     //create & assign duplicate_files_vec variable to Vec<[&str; 2]> from vec!{}
     //FOR WRITER; writer can write "results" in &str format
-    let mut duplicate_files_vec: Vec<[&str; 2]> = vec!{["file name", "file path"]};
+    let mut duplicate_files_vec: Vec<[&str; 2]> = vec!{["ORIGINAL FILE PATH", "DUPLICATE FILE PATH"]};
 
     //iterate through each duplicate file in duplicate_files
     for i in 0..duplicate_files.len() {

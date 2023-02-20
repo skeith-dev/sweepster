@@ -40,7 +40,7 @@ fn main() {
             //Search a directory for duplicate files BY SIZE
             2 => {
 
-                let dir_path: String = string_prompt("Enter the path of the directory to search BY NAME:");
+                let dir_path: String = string_prompt("Enter the path of the directory to search BY SIZE:");
 
                 let mut file_types: HashMap<String, Vec<String>> = HashMap::new();
                 custodian::organize_files_by_type(dir_path.as_str(), &mut file_types);
