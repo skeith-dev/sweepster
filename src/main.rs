@@ -7,7 +7,6 @@ mod custodian;
 
 fn main() {
     
-    //introductory prompt
     println!("\n{}", to_block_string("SWEEPSTER"));
     println!("\nYour very own command-line file custodian\n");
 
@@ -22,11 +21,19 @@ fn main() {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search BY NAME:");
 
-                let mut file_types: HashMap<String, Vec<String>> = HashMap::new();
+                let mut extension_counts: HashMap<String, u32> = HashMap::new();
+                custodian::count_files_by_type(&dir_path, &mut extension_counts);
+                println!("\n{:?}", extension_counts);
+
+                let mut file_types: HashMap<String, Vec<String>> = HashMap::with_capacity(extension_counts.len());
+                for (key, value) in extension_counts.into_iter() {
+                    file_types.insert(key, Vec::with_capacity(value as usize));
+                }
+
                 custodian::organize_files_by_type(dir_path.as_str(), &mut file_types);
 
                 let mut duplicate_files: Vec<(String, String)> = vec!{};
-                for (_key, value) in file_types {
+                for value in file_types.values_mut() {
                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
                 }
 

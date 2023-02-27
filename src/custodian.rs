@@ -6,25 +6,20 @@ use std::path::Path;
 
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
-//"GET FROM" functions
+//"GET FROM" FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
 fn file_path_from_dir_entry(dir_entry: &DirEntry) -> String {
 
-    //create & assign dir_entry_buff to PathBuf from path()
     let dir_entry_buff: std::path::PathBuf = dir_entry.path();
 
-    //create & assign file_path_option variable to Option<&str> from to_str()
     let file_path_option: Option<&str> = dir_entry_buff.to_str();
-    //match Option<&str> file_path_option
     match file_path_option {
 
-        //if Some...
         Some(file_path) => {
             return String::from(file_path);
         },
 
-        //if None...
         None => {
             println!("Could not parse DirEntry into file path &str");
             return String::from("");
@@ -36,20 +31,15 @@ fn file_path_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 fn file_name_from_dir_entry(dir_entry: &DirEntry) -> String {
 
-    //create & assign dir_entry_buff to OsString from file_name()
     let dir_entry_os_string: std::ffi::OsString = dir_entry.file_name();
 
-    //create & assign file_name_option variable to Option<&str> from to_str()
     let file_name_option: Option<&str> = dir_entry_os_string.to_str();
-    //match Option<&str> file_name_option
     match file_name_option {
 
-        //if Some...
         Some(file_name) => {
             return String::from(file_name);
         },
 
-        //if None...
         None => {
             println!("Could not parse DirEntry into file name &str");
             return String::from("");
@@ -81,7 +71,7 @@ fn file_extension_from_file_path(file_path: &str) -> String {
 
 fn file_size_from_file_path(file_path: &str) -> u64 {
 
-    let metadata_result = fs::metadata(file_path);
+    let metadata_result: Result<fs::Metadata, std::io::Error> = fs::metadata(file_path);
     match metadata_result {
 
         Ok(metadata) => {
@@ -99,78 +89,50 @@ fn file_size_from_file_path(file_path: &str) -> u64 {
 }
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
-//ORGANIZING FUNCTIONS
+// COUNTING AND ORGANIZING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<String, Vec<String>>) {
+pub fn count_files_by_type(dir_path: &str, extension_counts: &mut HashMap<String, u32>) {
 
-    //create & assign read_dir_result variable to Result<> from read_dir()
     let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
-    
-    //match Result<> read_dir_result
     match read_dir_result {
 
-        //if Ok...
         Ok(read_dir) => {
 
-            //create & assign paths variable to non-Err read_dir
             let paths: fs::ReadDir = read_dir;
-            
-            //iterate through every path in paths
             for path in paths {
 
-                //match Result<> path
                 match path {
 
-                    //if Ok...
                     Ok(dir_entry) => {
 
-                        println!("{}", dir_entry.path().display());
+                        let file_path: String = file_path_from_dir_entry(&dir_entry);
 
-                        //if the entry in the directory is a directory...
                         if dir_entry.path().is_dir() {
-
-                            //create & assign file_path variable to String from path_from_dir_entry
-                            let file_path: String = file_path_from_dir_entry(&dir_entry);
-                            //recursively call function
-                            organize_files_by_type(file_path.as_str(), file_types);
-
-                        //if the entry in the directory is a file...
+                            count_files_by_type(file_path.as_str(), extension_counts);
                         } else {
 
-                            //create & assign file_path variable to String from path_from_dir_entry()
-                            let file_path: String = file_path_from_dir_entry(&dir_entry);
-                            //create & assign file_name variable to String from name_from_dir_entry()
                             let file_extension: String = file_extension_from_file_path(file_path.as_str());
+                            if extension_counts.contains_key(&file_extension) {
 
-                            //if the file_types HashMap already contains the file extension...
-                            if file_types.contains_key(file_extension.as_str()) {
-
-                                //create & assign extension_vec_option variable to Option<> from get_mut()
-                                //get_mut() returns a mutable reference (wrapped in an Option) to the value at the key
-                                let extension_vec_option: Option<&mut Vec<String>> = file_types.get_mut(file_extension.as_str());
-                                match extension_vec_option {
-                                    //if Some...
-                                    Some(extension_vec) => {
-                                        //push file entry file type vector
-                                        extension_vec.push(file_path);
+                                let extension_count_option: Option<&mut u32> = extension_counts.get_mut(&file_extension);
+                                match extension_count_option {
+                                    Some(extension_count) => {
+                                        *extension_count += 1;
                                     },
-                                    //if None...
                                     None => {
-                                        println!("Could not get HashMap key of extension: {}", file_extension);
+                                        println!("Could not get the count of extension {}", file_extension);
                                     },
                                 }
 
-                            //if the file_types HashMap DOES NOT already contain the file extension...
                             } else {
-                                file_types.insert(file_extension, vec!{file_path});
+                                extension_counts.insert(file_extension, 1);
                             }
 
                         }
                         
                     },
 
-                    //if Err...
                     Err(_) => {
                         println!("Could not open directory at path: {}", dir_path);
                     }
@@ -181,7 +143,68 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<String, V
 
         },
 
-        //if Err...
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
+pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<String, Vec<String>>) {
+
+    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match read_dir_result {
+
+        Ok(read_dir) => {
+
+            let paths: fs::ReadDir = read_dir;
+            for path in paths {
+
+                match path {
+
+                    Ok(dir_entry) => {
+
+                        if dir_entry.path().is_dir() {
+
+                            let file_path: String = file_path_from_dir_entry(&dir_entry);
+                            organize_files_by_type(file_path.as_str(), file_types);
+
+                        } else {
+
+                            let file_path: String = file_path_from_dir_entry(&dir_entry);
+                            let file_extension: String = file_extension_from_file_path(file_path.as_str());
+
+                            if file_types.contains_key(file_extension.as_str()) {
+
+                                let extension_vec_option: Option<&mut Vec<String>> = file_types.get_mut(file_extension.as_str());
+                                match extension_vec_option {
+                                    Some(extension_vec) => {
+                                        extension_vec.push(file_path);
+                                    },
+                                    None => {
+                                        println!("Could not get HashMap key of extension: {}", file_extension);
+                                    },
+                                }
+
+                            } else {
+                                file_types.insert(file_extension, vec!{file_path});
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory at path: {}", dir_path);
+                    }
+
+                }
+
+            }
+
+        },
+
         Err(_) => {
             println!("Could not open directory at path: {}", dir_path);
         },
@@ -194,20 +217,32 @@ pub fn organize_files_by_type(dir_path: &str, file_types: &mut HashMap<String, V
 //CLEANING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn find_duplicates_by_name(same_type_files: Vec<String>, duplicate_files: &mut Vec<(String, String)>) {
+pub fn find_duplicates_by_name(same_type_files: &mut Vec<String>, duplicate_files: &mut Vec<(String, String)>) {
 
-    let mut files_by_name: HashMap<String, &str> = HashMap::new();
+    let mut files_by_name: HashMap<String, String> = HashMap::new();
 
-    for i in 0..same_type_files.len() {
+    while !same_type_files.is_empty() {
 
-        let file_name: String = file_name_from_file_path(same_type_files[i].as_str());
+        let file_name: String = file_name_from_file_path(same_type_files.last().unwrap().as_str());
 
-        let original_file_result: Option<&str> = files_by_name.insert(file_name.clone(), same_type_files[i].as_str());
-        match original_file_result {
+        let original_file_path_result: Option<String> = files_by_name.insert(file_name.clone(), same_type_files.pop().unwrap());
+        match original_file_path_result {
 
-            Some(original_file) => {
-                println!("Found duplicate file: {}", same_type_files[i]);
-                duplicate_files.push((String::from(original_file), same_type_files[i].clone()));
+            Some(original_file_path) => {
+
+                let duplicate_file_path_option: Option<String> = files_by_name.remove(&file_name);
+                match duplicate_file_path_option {
+
+                    Some(duplicate_file_path) => {
+                        duplicate_files.push((original_file_path, duplicate_file_path));
+                    },
+
+                    None => {
+                        println!("Could not get path of duplicate file!");
+                    },
+
+                }
+
             },
 
             None => {},
@@ -243,7 +278,7 @@ pub fn find_duplicates_by_size(same_type_files: Vec<String>, duplicate_files: &m
 }
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
-//ORGANIZING FUNCTIONS
+//EXPORTING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
 pub fn export_duplicates_to_csv(file_path: &str, duplicate_files: Vec<(String, String)>) {
