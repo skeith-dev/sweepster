@@ -236,15 +236,10 @@ pub fn find_duplicates_by_name(cabinet_drawer: &mut Vec<DirEntry>, duplicate_fil
 
                 let file_name: String = file_name_from_dir_entry(&file);
 
-                let duplicate_file_option: Option<DirEntry> = files_by_name.insert(file_name, file);
-                match duplicate_file_option {
-
-                    Some(duplicate_file) => {
-                        duplicate_files.push(duplicate_file);
-                    },
-
-                    None => {},
-
+                if files_by_name.contains_key(&file_name) {
+                    duplicate_files.push(file);
+                } else {
+                    files_by_name.insert(file_name, file);
                 }
 
             },
