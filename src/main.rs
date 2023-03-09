@@ -100,7 +100,7 @@ fn menu() -> u8 {
 
     println!();
     println!("1. Search a directory for duplicate files BY NAME");
-    println!("2. Search a directory for duplicate files BY SIZE");
+    println!("2. Search a directory for duplicate files BY CONTENTS");
     println!("0. Quit");
     println!();
 
