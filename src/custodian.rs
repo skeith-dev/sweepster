@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::fs::{self, DirEntry};
+use std::fs::{self, DirEntry, File};
+use std::io::{BufReader, Read};
 
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
@@ -65,7 +66,6 @@ fn file_extension_from_dir_entry(dir_entry: &DirEntry) -> String {
         },
 
         None => {
-            println!("Could not parse DirEntry into OsStr");
             return String::from("");
         },
 
@@ -73,18 +73,18 @@ fn file_extension_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_size_from_dir_entry(dir_entry: &DirEntry) -> String {
+fn file_size_from_dir_entry(dir_entry: &DirEntry) -> u64 {
 
     let meta_data_result: Result<fs::Metadata, std::io::Error> = dir_entry.metadata();
     match meta_data_result {
 
         Ok(meta_data) => {
-            return meta_data.len().to_string();
+            return meta_data.len();
         },
 
         Err(_) => {
             println!("Could not get metadata of DirEntry");
-            return String::from("");
+            return 0;
         },
 
     }
@@ -252,6 +252,151 @@ pub fn find_duplicates_by_name(cabinet_drawer: &mut Vec<DirEntry>, duplicate_fil
 
 }
 
+pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+
+    let mut files_by_size: HashMap<u64, Vec<DirEntry>> = HashMap::new();
+
+    while !cabinet_drawer.is_empty() {
+
+        let file_option: Option<DirEntry> = cabinet_drawer.pop();
+        match file_option {
+
+            Some(file) => {
+
+                let file_size: u64 = file_size_from_dir_entry(&file);
+
+                if files_by_size.contains_key(&file_size) {
+
+                    let files_of_size_option: Option<&mut Vec<DirEntry>> = files_by_size.get_mut(&file_size);
+                    match files_of_size_option {
+                        Some(files_of_size) => {
+                            files_of_size.push(file);
+                        },
+                        None => {
+                            println!("Could not get the files of size {}", &file_size);
+                        },
+                    }
+
+                    
+                } else {
+                    files_by_size.insert(file_size, vec!{file});
+                }
+
+            },
+
+            None => println!("Could not pop file from file cabinet drawer"),
+
+        }
+
+    }
+
+    for (key, value) in files_by_size.iter_mut() {
+
+        if value.len() > 1 {
+            println!("{} files of size {}", value.len(), key);
+        }
+
+        for i in 0..value.len() {
+
+            for j in (i + 1)..value.len() {
+
+                if i >= value.len() || j >= value.len() {
+                    continue;
+                }
+
+                let are_equal: bool = compare_two_files_by_contents(&value[i], &value[j]);
+                if are_equal {
+
+                    let duplicate_file = value.remove(j);
+                    duplicate_files.push(duplicate_file);
+                    
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry) -> bool {
+
+    let file_1_path: String = file_path_from_dir_entry(&dir_entry_1);
+    let file_2_path: String = file_path_from_dir_entry(&dir_entry_2);
+
+    println!("{} <-> {}", file_1_path, file_2_path);
+
+    let file_1_result: Result<File, std::io::Error> = File::open(&file_1_path);
+    let file_2_result: Result<File, std::io::Error> = File::open(&file_2_path);
+
+    match file_1_result {
+
+        Ok(file_1) => {
+
+            match file_2_result {
+
+                Ok(file_2) => {
+
+                    let file_1_reader: BufReader<File> = BufReader::new(file_1);
+                    let file_2_reader: BufReader<File> = BufReader::new(file_2);
+
+                    for (file_1_byte_result, file_2_byte_result) in file_1_reader.bytes().zip(file_2_reader.bytes()) {
+
+                        match file_1_byte_result {
+
+                            Ok(file_1_byte) => {
+
+                                match file_2_byte_result {
+
+                                    Ok(file_2_byte) => {
+
+                                        if file_1_byte != file_2_byte {
+                                            return false;
+                                        }
+
+                                    },
+
+                                    Err(_) => {
+                                        println!("Could not read byte from file at path: {}", file_2_path);
+                                        return false;
+                                    },
+
+                                }
+
+                            },
+
+                            Err(_) => {
+                                println!("Could not read byte from file at path: {}", file_1_path);
+                                return false;
+                            },
+
+                        }
+
+                    }
+
+                    return true;
+
+                },
+
+                Err(_) => {
+                    println!("Could not open file at path: {}", file_2_path);
+                    return false;
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open file at path: {}", file_1_path);
+            return false;
+        },
+
+    }
+
+}
+
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 //EXPORTING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
@@ -266,7 +411,7 @@ pub fn bundle_duplicate_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]
         let file_name: String = file_name_from_dir_entry(&file);
         let file_path: String = file_path_from_dir_entry(&file);
         let file_extension: String = file_extension_from_dir_entry(&file);
-        let file_size: String = file_size_from_dir_entry(&file);
+        let file_size: String = file_size_from_dir_entry(&file).to_string();
         
         duplicate_files_bundle.push( [file_name, file_path, file_extension, file_size] );
 

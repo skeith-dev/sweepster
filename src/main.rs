@@ -53,9 +53,32 @@ fn main() {
             //Search a directory for duplicate files BY SIZE
             2 => {
 
-                let dir_path: String = string_prompt("Enter the path of the directory to search BY SIZE:");
+                let dir_path: String = string_prompt("Enter the path of the directory to search BY CONTENTS:");
 
-                
+                let now: Instant = Instant::now();
+
+                let mut extension_counts: HashMap<String, u32> = HashMap::new();
+                custodian::count_files_by_type(&dir_path, &mut extension_counts);
+                println!("\n{:?}", extension_counts);
+
+                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+                for (key, value) in extension_counts.into_iter() {
+                    file_cabinet.insert(key, Vec::with_capacity(value as usize));
+                }
+
+                custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
+
+                let mut duplicate_files: Vec<DirEntry> = vec![];
+                for value in file_cabinet.values_mut() {
+                    custodian::find_duplicates_by_contents(value, &mut duplicate_files);
+                }
+
+                let elapsed: std::time::Duration = now.elapsed();
+                println!("\nCompleted in {:.2?}", elapsed);
+
+                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_duplicate_files(duplicate_files);
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files_bundle);
 
             },
 
