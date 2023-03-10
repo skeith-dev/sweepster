@@ -417,6 +417,9 @@ pub fn bundle_duplicate_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]
 
     });
 
+    println!("Sorting {} duplicate files...", duplicate_files_bundle.len());
+    duplicate_files_bundle.sort();
+
     return duplicate_files_bundle;
 
 }
