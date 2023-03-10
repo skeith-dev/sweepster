@@ -419,7 +419,7 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 
                             let file_name: String = file_name_from_dir_entry(&dir_entry);
 
-                            if file_names.iter().any(|e| file_name.contains(e)) {
+                            if file_names.iter().any(|e| file_name == *e) {
                                 files_of_names.push(dir_entry);
                             }
 
