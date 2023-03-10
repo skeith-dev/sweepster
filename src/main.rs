@@ -44,9 +44,9 @@ fn main() {
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);
 
-                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_duplicate_files(duplicate_files);
+                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(duplicate_files);
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
-                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files_bundle);
+                custodian::export_found_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
 
             },
 
@@ -76,9 +76,29 @@ fn main() {
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);
 
-                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_duplicate_files(duplicate_files);
+                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(duplicate_files);
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
-                custodian::export_duplicates_to_csv(csv_path.as_str(), duplicate_files_bundle);
+                custodian::export_found_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
+
+            },
+
+            //Search a directory for files of a GIVEN NAME
+            3 => {
+
+                let dir_path: String = string_prompt("Enter the path of the directory to search:");
+                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, separated by spaces:");
+
+                let now: Instant = Instant::now();
+
+                let mut files_of_names: Vec<DirEntry> = vec![];
+                custodian::find_files_of_given_names(&dir_path, &file_names, &mut files_of_names);
+
+                let elapsed: std::time::Duration = now.elapsed();
+                println!("\nCompleted in {:.2?}", elapsed);
+
+                let found_files_bundle = custodian::bundle_found_files(files_of_names);
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_found_files_to_csv(csv_path.as_str(), found_files_bundle);
 
             },
 
@@ -101,6 +121,7 @@ fn menu() -> u8 {
     println!();
     println!("1. Search a directory for duplicate files BY NAME");
     println!("2. Search a directory for duplicate files BY CONTENTS");
+    println!("3. Search a directory for files of a GIVEN NAME");
     println!("0. Quit");
     println!();
 
@@ -175,6 +196,46 @@ fn string_prompt(prompt: &str) -> String {
             println!("Invalid user input!");
             //recursively call function
             return string_prompt(prompt);
+        },
+
+    }
+
+}
+
+fn strings_prompt(prompt: &str) -> Vec<String> {
+
+    println!();
+    println!("{}", prompt);
+
+    //create & assign selection variable to new String
+    let mut selection: String = String::new();
+    //create & assign result variable to Result<usize> from read_line() function
+    let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
+
+    //match Result<usize> result
+    match result {
+
+        //if Ok...
+        Ok(_r1) => {
+
+            let mut file_names: Vec<String> = vec![];
+
+            let response: String = String::from(selection.trim());
+
+            let parts: std::str::Split<&str> = response.split(" ");
+            for part in parts {
+                file_names.push(String::from(part));
+            }
+
+            return file_names;
+
+        },
+
+        //if Err...
+        Err(_e1) => {
+            println!("Invalid user input!");
+            //recursively call function
+            return strings_prompt(prompt);
         },
 
     }

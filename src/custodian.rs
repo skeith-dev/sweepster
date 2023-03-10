@@ -397,11 +397,59 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
 
 }
 
+pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
+
+    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match read_dir_result {
+
+        Ok(read_dir) => {
+
+            for path in read_dir {
+
+                match path {
+
+                    Ok(dir_entry) => {
+
+                        if dir_entry.path().is_dir() {
+
+                            let directory_path: String = file_path_from_dir_entry(&dir_entry);
+                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_names);
+
+                        } else {
+
+                            let file_name: String = file_name_from_dir_entry(&dir_entry);
+
+                            if file_names.iter().any(|e| file_name.contains(e)) {
+                                files_of_names.push(dir_entry);
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    }
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 //EXPORTING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn bundle_duplicate_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
+pub fn bundle_found_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
     //FOR WRITER; writer can write "results" in &str format
     let mut duplicate_files_bundle: Vec<[String; 4]> = vec!{ [String::from("FILE NAME"), String::from("FILE PATH"), String::from("FILE TYPE"), String::from("FILE SIZE")] };
@@ -417,14 +465,11 @@ pub fn bundle_duplicate_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]
 
     });
 
-    println!("Sorting {} duplicate files...", duplicate_files_bundle.len());
-    duplicate_files_bundle.sort();
-
     return duplicate_files_bundle;
 
 }
 
-pub fn export_duplicates_to_csv(file_path: &str, duplicate_files_bundle: Vec<[String; 4]>) {
+pub fn export_found_files_to_csv(file_path: &str, duplicate_files_bundle: Vec<[String; 4]>) {
 
     let writer_result: Result<csv::Writer<fs::File>, csv::Error> = csv::Writer::from_path(file_path);
     match writer_result {
