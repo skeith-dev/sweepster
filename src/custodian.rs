@@ -445,16 +445,64 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 
 }
 
+pub fn find_files_of_given_types(dir_path: &str, file_types: &Vec<String>, files_of_types: &mut Vec<DirEntry>) {
+
+    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match read_dir_result {
+
+        Ok(read_dir) => {
+
+            for path in read_dir {
+
+                match path {
+
+                    Ok(dir_entry) => {
+
+                        if dir_entry.path().is_dir() {
+
+                            let directory_path: String = file_path_from_dir_entry(&dir_entry);
+                            find_files_of_given_types(directory_path.as_str(), file_types, files_of_types);
+
+                        } else {
+
+                            let file_type: String = file_extension_from_dir_entry(&dir_entry);
+
+                            if file_types.iter().any(|e| file_type == *e) {
+                                files_of_types.push(dir_entry);
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    }
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 //EXPORTING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn bundle_found_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
+pub fn bundle_found_files(found_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
     //FOR WRITER; writer can write "results" in &str format
-    let mut duplicate_files_bundle: Vec<[String; 4]> = Vec::with_capacity(duplicate_files.len());
+    let mut duplicate_files_bundle: Vec<[String; 4]> = Vec::with_capacity(found_files.len());
 
-    duplicate_files.into_iter().for_each(|file| {
+    found_files.into_iter().for_each(|file| {
 
         let file_name: String = file_name_from_dir_entry(&file);
         let file_path: String = file_path_from_dir_entry(&file);
@@ -472,16 +520,16 @@ pub fn bundle_found_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
 }
 
-pub fn export_found_files_to_csv(file_path: &str, duplicate_files_bundle: Vec<[String; 4]>) {
+pub fn export_found_files_to_csv(file_path: &str, found_files_bundle: Vec<[String; 4]>) {
 
     let writer_result: Result<csv::Writer<fs::File>, csv::Error> = csv::Writer::from_path(file_path);
     match writer_result {
 
         Ok(mut writer) => {
 
-            for i in 0..duplicate_files_bundle.len() {
+            for i in 0..found_files_bundle.len() {
 
-                let record = [duplicate_files_bundle[i][0].as_str(), duplicate_files_bundle[i][1].as_str(), duplicate_files_bundle[i][2].as_str(), duplicate_files_bundle[i][3].as_str()];
+                let record: [&str; 4] = [found_files_bundle[i][0].as_str(), found_files_bundle[i][1].as_str(), found_files_bundle[i][2].as_str(), found_files_bundle[i][3].as_str()];
 
                 let write_record_result: Result<(), csv::Error> = writer.write_record(record);
                 match write_record_result {

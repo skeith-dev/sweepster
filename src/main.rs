@@ -96,7 +96,27 @@ fn main() {
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);
 
-                let found_files_bundle = custodian::bundle_found_files(files_of_names);
+                let found_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(files_of_names);
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_found_files_to_csv(csv_path.as_str(), found_files_bundle);
+
+            },
+
+            //Search a directory for files of a GIVEN TYPE
+            4 => {
+
+                let dir_path: String = string_prompt("Enter the path of the directory to search:");
+                let file_types: Vec<String> = strings_prompt("Enter the file types to search for, NOT INCLUDING the file extension, separated by a single space:");
+
+                let now: Instant = Instant::now();
+
+                let mut files_of_types: Vec<DirEntry> = vec![];
+                custodian::find_files_of_given_types(&dir_path, &file_types, &mut files_of_types);
+
+                let elapsed: std::time::Duration = now.elapsed();
+                println!("\nCompleted in {:.2?}", elapsed);
+
+                let found_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(files_of_types);
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
                 custodian::export_found_files_to_csv(csv_path.as_str(), found_files_bundle);
 
@@ -122,6 +142,7 @@ fn menu() -> u8 {
     println!("1. Search a directory for duplicate files BY NAME");
     println!("2. Search a directory for duplicate files BY CONTENTS");
     println!("3. Search a directory for files of a GIVEN NAME");
+    println!("4. Search a directory for files of a GIVEN TYPE");
     println!("0. Quit");
     println!();
 
