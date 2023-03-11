@@ -86,7 +86,7 @@ fn main() {
             3 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search:");
-                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, separated by spaces:");
+                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, INCLUDING the file extension, separated by a single space:");
 
                 let now: Instant = Instant::now();
 
@@ -125,30 +125,20 @@ fn menu() -> u8 {
     println!("0. Quit");
     println!();
 
-    //create & assign selection variable to new String
     let mut selection: String = String::new();
-    //create & assign result variable to Result<usize> from read_line() function
     let result = io::stdin().read_line(&mut selection);
 
-    //match Result<usize> result
     match result {
 
-        //if Ok...
         Ok(_r1) => {
 
-            //re-assign selection variable to String from selection.trim()
-            //re-assignment of selection frees memory of old selection
             //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
             selection = String::from(selection.trim());
 
-            //match Result<usize> from parse::<i8>() function
             match selection.parse::<u8>() {
 
-                //if Ok...
-                //return parsed i8
-                Ok(r2) => r2,
+                Ok(num_selection) => num_selection,
 
-                //if Err...
                 Err(_e2) => {
                     println!("User input \"{}\" cannot be parsed into i8!", selection);
                     //recursively call function
@@ -159,7 +149,6 @@ fn menu() -> u8 {
 
         },
 
-        //if Err...
         Err(_e1) => {
             println!("Invalid user input!");
             //recursively call function
@@ -175,23 +164,16 @@ fn string_prompt(prompt: &str) -> String {
     println!();
     println!("{}", prompt);
 
-    //create & assign selection variable to new String
     let mut selection: String = String::new();
-    //create & assign result variable to Result<usize> from read_line() function
     let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
 
-    //match Result<usize> result
     match result {
 
-        //if Ok...
         Ok(_r1) => {
-            //re-assign selection variable to String from selection.trim()
-            //re-assignment of selection frees memory of old selection
             //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
             return String::from(selection.trim());
         },
 
-        //if Err...
         Err(_e1) => {
             println!("Invalid user input!");
             //recursively call function
@@ -207,15 +189,11 @@ fn strings_prompt(prompt: &str) -> Vec<String> {
     println!();
     println!("{}", prompt);
 
-    //create & assign selection variable to new String
     let mut selection: String = String::new();
-    //create & assign result variable to Result<usize> from read_line() function
     let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
 
-    //match Result<usize> result
     match result {
 
-        //if Ok...
         Ok(_r1) => {
 
             let mut file_names: Vec<String> = vec![];
@@ -231,7 +209,6 @@ fn strings_prompt(prompt: &str) -> Vec<String> {
 
         },
 
-        //if Err...
         Err(_e1) => {
             println!("Invalid user input!");
             //recursively call function

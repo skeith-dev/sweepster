@@ -452,7 +452,7 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 pub fn bundle_found_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
     //FOR WRITER; writer can write "results" in &str format
-    let mut duplicate_files_bundle: Vec<[String; 4]> = vec!{ [String::from("FILE NAME"), String::from("FILE PATH"), String::from("FILE TYPE"), String::from("FILE SIZE")] };
+    let mut duplicate_files_bundle: Vec<[String; 4]> = Vec::with_capacity(duplicate_files.len());
 
     duplicate_files.into_iter().for_each(|file| {
 
@@ -464,6 +464,9 @@ pub fn bundle_found_files(duplicate_files: Vec<DirEntry>) -> Vec<[String; 4]> {
         duplicate_files_bundle.push( [file_name, file_path, file_extension, file_size] );
 
     });
+
+    duplicate_files_bundle.sort();
+    duplicate_files_bundle.insert(0, [String::from("FILE NAME"), String::from("FILE PATH"), String::from("FILE TYPE"), String::from("FILE SIZE")]);
 
     return duplicate_files_bundle;
 
@@ -494,7 +497,6 @@ pub fn export_found_files_to_csv(file_path: &str, duplicate_files_bundle: Vec<[S
             }
         },
 
-        //if Err...
         Err(_) => {
             println!("Could not create CSV writer for filepath: {}", file_path);
         },
