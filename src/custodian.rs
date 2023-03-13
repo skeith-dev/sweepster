@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{self, DirEntry, File};
-use std::io::{BufReader, Read};
+use std::io::{BufReader, Read, Write};
 
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
@@ -252,7 +252,7 @@ pub fn find_duplicates_by_name(cabinet_drawer: &mut Vec<DirEntry>, duplicate_fil
 
 }
 
-pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>, log_file_option: &mut Option<&mut std::fs::File>) {
 
     let mut files_by_size: HashMap<u64, Vec<DirEntry>> = HashMap::new();
 
@@ -296,6 +296,8 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
             println!("{} files of size {}", value.len(), key);
         }
 
+        value.reverse();
+
         for i in 0..value.len() {
 
             for j in (i + 1)..value.len() {
@@ -304,11 +306,33 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
                     continue;
                 }
 
-                let are_equal: bool = compare_two_files_by_contents(&value[i], &value[j]);
+                let file_1_path: String = file_path_from_dir_entry(&value[i]);
+                let file_2_path: String = file_path_from_dir_entry(&value[j]);
+                let are_equal: bool = compare_two_files_by_contents(file_1_path.as_str(), file_2_path.as_str());
                 if are_equal {
 
-                    let duplicate_file = value.remove(j);
+                    let duplicate_file: DirEntry = value.remove(j);
                     duplicate_files.push(duplicate_file);
+
+                    match log_file_option {
+
+                        Some(ref mut log_file) => {
+
+                            let log: String = format!("{} <-> {}\n", file_1_path, file_2_path);
+                            let write_result: Result<(), std::io::Error> = log_file.write_all(log.as_bytes());
+                            match write_result {
+
+                                Ok(()) => {},
+
+                                Err(_) => println!("Could not write log: \"{}\"", log),
+
+                            }
+
+                        },
+
+                        None => {},
+
+                    }
                     
                 }
 
@@ -320,12 +344,7 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
 
 }
 
-fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry) -> bool {
-
-    let file_1_path: String = file_path_from_dir_entry(&dir_entry_1);
-    let file_2_path: String = file_path_from_dir_entry(&dir_entry_2);
-
-    println!("{} <-> {}", file_1_path, file_2_path);
+fn compare_two_files_by_contents(file_1_path: &str, file_2_path: &str) -> bool {
 
     let file_1_result: Result<File, std::io::Error> = File::open(&file_1_path);
     let file_2_result: Result<File, std::io::Error> = File::open(&file_2_path);

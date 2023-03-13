@@ -55,6 +55,9 @@ fn main() {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search BY CONTENTS:");
 
+                let log_file_path: String = string_prompt("Enter the path of the log file (enter nothing for none):");
+                let mut log_file_option: Option<std::fs::File> = get_log_file(log_file_path.as_str());
+
                 let now: Instant = Instant::now();
 
                 let mut extension_counts: HashMap<String, u32> = HashMap::new();
@@ -67,10 +70,22 @@ fn main() {
                 }
 
                 custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
-
+                
                 let mut duplicate_files: Vec<DirEntry> = vec![];
                 for value in file_cabinet.values_mut() {
-                    custodian::find_duplicates_by_contents(value, &mut duplicate_files);
+
+                    match log_file_option {
+
+                        Some(ref mut log_file) => {
+                            custodian::find_duplicates_by_contents(value, &mut duplicate_files, &mut Some(log_file));
+                        },
+
+                        None => {
+                            custodian::find_duplicates_by_contents(value, &mut duplicate_files, &mut None);
+                        },
+
+                    }
+
                 }
 
                 let elapsed: std::time::Duration = now.elapsed();
@@ -236,6 +251,30 @@ fn strings_prompt(prompt: &str) -> Vec<String> {
             return strings_prompt(prompt);
         },
 
+    }
+
+}
+
+fn get_log_file(log_file_path: &str) -> Option<std::fs::File> {
+
+    if log_file_path != "" {
+
+        let log_file_result = std::fs::File::create(log_file_path);
+        match log_file_result {
+
+            Ok(log_file) => {
+                return Some(log_file);
+            },
+
+            Err(_) => {
+                println!("Could not open log file at path: {}", &log_file_path);
+                return None;
+            }
+
+        }
+
+    } else {
+        return None;
     }
 
 }
