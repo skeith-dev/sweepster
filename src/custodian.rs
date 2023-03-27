@@ -8,7 +8,7 @@ use std::io::{BufReader, Read};
 //"GET FROM" FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-fn file_path_from_dir_entry(dir_entry: &DirEntry) -> String {
+fn file_path_from_direntry(dir_entry: &DirEntry) -> String {
 
     let path_buff: std::path::PathBuf = dir_entry.path();
 
@@ -28,7 +28,7 @@ fn file_path_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_name_from_dir_entry(dir_entry: &DirEntry) -> String {
+fn file_name_from_direntry(dir_entry: &DirEntry) -> String {
 
     let name_os_string: std::ffi::OsString = dir_entry.file_name();
 
@@ -48,7 +48,7 @@ fn file_name_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_extension_from_dir_entry(dir_entry: &DirEntry) -> String {
+fn file_extension_from_direntry(dir_entry: &DirEntry) -> String {
 
     let path_buff: std::path::PathBuf = dir_entry.path();
 
@@ -73,7 +73,7 @@ fn file_extension_from_dir_entry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_size_from_dir_entry(dir_entry: &DirEntry) -> u64 {
+fn file_size_from_direntry(dir_entry: &DirEntry) -> u64 {
 
     let meta_data_result: Result<fs::Metadata, std::io::Error> = dir_entry.metadata();
     match meta_data_result {
@@ -97,27 +97,24 @@ fn file_size_from_dir_entry(dir_entry: &DirEntry) -> u64 {
 
 pub fn count_files_by_type(dir_path: &str, extension_counts: &mut HashMap<String, u32>) {
 
-    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
-    match read_dir_result {
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
 
-        Ok(read_dir) => {
+        Ok(directory) => {
 
-            let read_dir: fs::ReadDir = read_dir;
-            for path in read_dir {
+            for path in directory {
 
                 match path {
 
-                    Ok(dir_entry) => {
+                    Ok(entry) => {
 
-                        let file_path: String = file_path_from_dir_entry(&dir_entry);
+                        let file_path: String = file_path_from_direntry(&entry);
 
-                        if dir_entry.path().is_dir() {
-
-                            count_files_by_type(file_path.as_str(), extension_counts);
-
+                        if entry.path().is_dir() {
+                            count_files_by_type(&file_path, extension_counts);
                         } else {
 
-                            let file_extension: String = file_extension_from_dir_entry(&dir_entry);
+                            let file_extension: String = file_extension_from_direntry(&entry);
                             if extension_counts.contains_key(&file_extension) {
 
                                 let extension_count_option: Option<&mut u32> = extension_counts.get_mut(&file_extension);
@@ -126,7 +123,7 @@ pub fn count_files_by_type(dir_path: &str, extension_counts: &mut HashMap<String
                                         *extension_count += 1;
                                     },
                                     None => {
-                                        println!("Could not get the count of extension {}", file_extension);
+                                        println!("Could not get count of extension {}", file_extension);
                                     },
                                 }
 
@@ -158,25 +155,25 @@ pub fn count_files_by_type(dir_path: &str, extension_counts: &mut HashMap<String
 
 pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String, Vec<DirEntry>>) {
 
-    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
-    match read_dir_result {
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
 
-        Ok(read_dir) => {
+        Ok(directory) => {
 
-            for path in read_dir {
+            for path in directory {
 
                 match path {
 
-                    Ok(dir_entry) => {
+                    Ok(entry) => {
 
-                        if dir_entry.path().is_dir() {
+                        if entry.path().is_dir() {
 
-                            let directory_path: String = file_path_from_dir_entry(&dir_entry);
+                            let directory_path: String = file_path_from_direntry(&entry);
                             organize_files_by_type(directory_path.as_str(), file_cabinet);
 
                         } else {
 
-                            let file_extension: String = file_extension_from_dir_entry(&dir_entry);
+                            let file_extension: String = file_extension_from_direntry(&entry);
 
                             if file_cabinet.contains_key(&file_extension) {
 
@@ -184,7 +181,7 @@ pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String,
                                 match extension_vec_option {
 
                                     Some(extension_vec) => {
-                                        extension_vec.push(dir_entry);
+                                        extension_vec.push(entry);
                                     },
 
                                     None => {
@@ -194,7 +191,7 @@ pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String,
                                 }
 
                             } else {
-                                file_cabinet.insert(file_extension, vec!{dir_entry});
+                                file_cabinet.insert(file_extension, vec!{entry});
                             }
 
                         }
@@ -223,23 +220,28 @@ pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String,
 //CLEANING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn find_duplicates_by_name(cabinet_drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
 
     let mut files_by_name: HashMap<String, DirEntry> = HashMap::new();
 
-    while !cabinet_drawer.is_empty() {
+    while !drawer.is_empty() {
 
-        let file_option: Option<DirEntry> = cabinet_drawer.pop();
+        let file_option: Option<DirEntry> = drawer.pop();
         match file_option {
 
             Some(file) => {
 
-                let file_name: String = file_name_from_dir_entry(&file);
+                let file_name: String = file_name_from_direntry(&file);
 
-                if files_by_name.contains_key(&file_name) {
-                    duplicate_files.push(file);
-                } else {
-                    files_by_name.insert(file_name, file);
+                let duplicate_file_result: Option<DirEntry> = files_by_name.insert(file_name, file);
+                match duplicate_file_result {
+
+                    Some(duplicate_file) => {
+                        duplicate_files.push(duplicate_file);
+                    },
+
+                    None => {},
+
                 }
 
             },
@@ -252,18 +254,18 @@ pub fn find_duplicates_by_name(cabinet_drawer: &mut Vec<DirEntry>, duplicate_fil
 
 }
 
-pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
 
     let mut files_by_size: HashMap<u64, Vec<DirEntry>> = HashMap::new();
 
-    while !cabinet_drawer.is_empty() {
+    while !drawer.is_empty() {
 
-        let file_option: Option<DirEntry> = cabinet_drawer.pop();
+        let file_option: Option<DirEntry> = drawer.pop();
         match file_option {
 
             Some(file) => {
 
-                let file_size: u64 = file_size_from_dir_entry(&file);
+                let file_size: u64 = file_size_from_direntry(&file);
 
                 if files_by_size.contains_key(&file_size) {
 
@@ -273,7 +275,7 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
                             files_of_size.push(file);
                         },
                         None => {
-                            println!("Could not get the files of size {}", &file_size);
+                            println!("Could not get files of size {}", &file_size);
                         },
                     }
 
@@ -292,9 +294,7 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
 
     for (key, value) in files_by_size.iter_mut() {
 
-        if value.len() > 1 {
-            println!("{} files of size {}", value.len(), key);
-        }
+        println!("{} files of size {}", value.len(), key);
 
         for i in 0..value.len() {
 
@@ -322,8 +322,8 @@ pub fn find_duplicates_by_contents(cabinet_drawer: &mut Vec<DirEntry>, duplicate
 
 fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry) -> bool {
 
-    let file_1_path: String = file_path_from_dir_entry(&dir_entry_1);
-    let file_2_path: String = file_path_from_dir_entry(&dir_entry_2);
+    let file_1_path: String = file_path_from_direntry(&dir_entry_1);
+    let file_2_path: String = file_path_from_direntry(&dir_entry_2);
 
     println!("{} <-> {}", file_1_path, file_2_path);
 
@@ -397,30 +397,29 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
 
 }
 
-pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
+pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_given_names: &mut Vec<DirEntry>) {
 
-    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
-    match read_dir_result {
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
 
-        Ok(read_dir) => {
+        Ok(directory) => {
 
-            for path in read_dir {
+            for path in directory {
 
                 match path {
 
-                    Ok(dir_entry) => {
+                    Ok(entry) => {
 
-                        if dir_entry.path().is_dir() {
+                        if entry.path().is_dir() {
 
-                            let directory_path: String = file_path_from_dir_entry(&dir_entry);
-                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_names);
+                            let directory_path: String = file_path_from_direntry(&entry);
+                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_given_names);
 
                         } else {
 
-                            let file_name: String = file_name_from_dir_entry(&dir_entry);
-
+                            let file_name: String = file_name_from_direntry(&entry);
                             if file_names.iter().any(|e| file_name == *e) {
-                                files_of_names.push(dir_entry);
+                                files_of_given_names.push(entry);
                             }
 
                         }
@@ -447,28 +446,27 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 
 pub fn find_files_of_given_types(dir_path: &str, file_types: &Vec<String>, files_of_types: &mut Vec<DirEntry>) {
 
-    let read_dir_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
-    match read_dir_result {
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
 
-        Ok(read_dir) => {
+        Ok(directory) => {
 
-            for path in read_dir {
+            for path in directory {
 
                 match path {
 
-                    Ok(dir_entry) => {
+                    Ok(entry) => {
 
-                        if dir_entry.path().is_dir() {
+                        if entry.path().is_dir() {
 
-                            let directory_path: String = file_path_from_dir_entry(&dir_entry);
+                            let directory_path: String = file_path_from_direntry(&entry);
                             find_files_of_given_types(directory_path.as_str(), file_types, files_of_types);
 
                         } else {
 
-                            let file_type: String = file_extension_from_dir_entry(&dir_entry);
-
+                            let file_type: String = file_extension_from_direntry(&entry);
                             if file_types.iter().any(|e| file_type == *e) {
-                                files_of_types.push(dir_entry);
+                                files_of_types.push(entry);
                             }
 
                         }
@@ -504,10 +502,10 @@ pub fn bundle_found_files(found_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
     found_files.into_iter().for_each(|file| {
 
-        let file_name: String = file_name_from_dir_entry(&file);
-        let file_path: String = file_path_from_dir_entry(&file);
-        let file_extension: String = file_extension_from_dir_entry(&file);
-        let file_size: String = file_size_from_dir_entry(&file).to_string();
+        let file_name: String = file_name_from_direntry(&file);
+        let file_path: String = file_path_from_direntry(&file);
+        let file_extension: String = file_extension_from_direntry(&file);
+        let file_size: String = file_size_from_direntry(&file).to_string();
         
         duplicate_files_bundle.push( [file_name, file_path, file_extension, file_size] );
 

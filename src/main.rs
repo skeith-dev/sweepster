@@ -86,7 +86,7 @@ fn main() {
             3 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search:");
-                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, INCLUDING the file extension, separated by a single space:");
+                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, NOT INCLUDING the file extension, separated by a single space:");
 
                 let now: Instant = Instant::now();
 
@@ -106,7 +106,7 @@ fn main() {
             4 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search:");
-                let file_types: Vec<String> = strings_prompt("Enter the file types to search for, NOT INCLUDING the file extension, separated by a single space:");
+                let file_types: Vec<String> = strings_prompt("Enter the file types to search for, NOT INCLUDING the \".\", separated by a single space:");
 
                 let now: Instant = Instant::now();
 
@@ -147,20 +147,18 @@ fn menu() -> u8 {
     println!();
 
     let mut selection: String = String::new();
-    let result = io::stdin().read_line(&mut selection);
-
+    let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
     match result {
 
-        Ok(_r1) => {
+        Ok(_) => {
 
             //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
             selection = String::from(selection.trim());
-
             match selection.parse::<u8>() {
 
                 Ok(num_selection) => num_selection,
 
-                Err(_e2) => {
+                Err(_) => {
                     println!("User input \"{}\" cannot be parsed into i8!", selection);
                     //recursively call function
                     menu()
@@ -170,7 +168,7 @@ fn menu() -> u8 {
 
         },
 
-        Err(_e1) => {
+        Err(_) => {
             println!("Invalid user input!");
             //recursively call function
             menu()
@@ -187,15 +185,14 @@ fn string_prompt(prompt: &str) -> String {
 
     let mut selection: String = String::new();
     let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
-
     match result {
 
-        Ok(_r1) => {
+        Ok(_) => {
             //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
             return String::from(selection.trim());
         },
 
-        Err(_e1) => {
+        Err(_) => {
             println!("Invalid user input!");
             //recursively call function
             return string_prompt(prompt);
@@ -212,25 +209,22 @@ fn strings_prompt(prompt: &str) -> Vec<String> {
 
     let mut selection: String = String::new();
     let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
-
     match result {
 
-        Ok(_r1) => {
+        Ok(_) => {
 
-            let mut file_names: Vec<String> = vec![];
+            let mut strings: Vec<String> = vec![];
 
             let response: String = String::from(selection.trim());
-
-            let parts: std::str::Split<&str> = response.split(" ");
-            for part in parts {
-                file_names.push(String::from(part));
+            for part in response.split(" ") {
+                strings.push(String::from(part));
             }
 
-            return file_names;
+            return strings;
 
         },
 
-        Err(_e1) => {
+        Err(_) => {
             println!("Invalid user input!");
             //recursively call function
             return strings_prompt(prompt);
