@@ -1,4 +1,5 @@
 # sweepster
+![sweepster logo](/sweepster/sweepster.png?raw=true "sweepster")
 Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
