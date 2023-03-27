@@ -292,9 +292,11 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
 
     }
 
-    for (key, value) in files_by_size.iter_mut() {
+    for value in files_by_size.values_mut() {
 
-        println!("{} files of size {}", value.len(), key);
+        //MUST reverse; otherwise, last detected instance of a file is considered
+        //to be "original", instead of first detected
+        value.reverse();
 
         for i in 0..value.len() {
 
