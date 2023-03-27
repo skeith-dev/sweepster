@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{self, DirEntry, File};
 use std::io::{BufReader, Read};
+use chrono::{NaiveDate, Utc, DateTime};
 
 
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
@@ -85,6 +86,39 @@ fn file_size_from_direntry(dir_entry: &DirEntry) -> u64 {
         Err(_) => {
             println!("Could not get metadata of DirEntry");
             return 0;
+        },
+
+    }
+
+}
+
+fn file_last_modified_from_direntry(dir_entry: &DirEntry) -> NaiveDate {
+
+    let meta_data_result: Result<fs::Metadata, std::io::Error> = dir_entry.metadata();
+    match meta_data_result {
+        
+        Ok(meta_data) => {
+
+            let last_modified_result: Result<std::time::SystemTime, std::io::Error> = meta_data.modified();
+            match last_modified_result {
+
+                Ok(last_modified) => {
+                    let last_modified_date: DateTime<Utc> = last_modified.into();
+                    return last_modified_date.date_naive();
+                },
+
+                Err(_) => {
+                    println!("Could not get last modified SystemTime of DirEntry");
+                    return NaiveDate::MIN;
+                },
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not get metadata of DirEntry");
+            return NaiveDate::MIN;
         },
 
     }
@@ -399,7 +433,7 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
 
 }
 
-pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_given_names: &mut Vec<DirEntry>) {
+pub fn find_files_of_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
     match directory_result {
@@ -415,13 +449,13 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
                         if entry.path().is_dir() {
 
                             let directory_path: String = file_path_from_direntry(&entry);
-                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_given_names);
+                            find_files_of_names(directory_path.as_str(), file_names, files_of_names);
 
                         } else {
 
                             let file_name: String = file_name_from_direntry(&entry);
                             if file_names.iter().any(|e| file_name == *e) {
-                                files_of_given_names.push(entry);
+                                files_of_names.push(entry);
                             }
 
                         }
@@ -469,6 +503,53 @@ pub fn find_files_of_given_types(dir_path: &str, file_types: &Vec<String>, files
                             let file_type: String = file_extension_from_direntry(&entry);
                             if file_types.iter().any(|e| file_type == *e) {
                                 files_of_types.push(entry);
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    }
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
+pub fn find_files_last_modifed_before(dir_path: &str, cutoff_date: &NaiveDate, files_last_modified_before: &mut Vec<DirEntry>) {
+
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
+
+        Ok(directory) => {
+
+            for path in directory {
+
+                match path {
+
+                    Ok(entry) => {
+
+                        if entry.path().is_dir() {
+
+                            let directory_path: String = file_path_from_direntry(&entry);
+                            find_files_last_modifed_before(directory_path.as_str(), cutoff_date, files_last_modified_before);
+
+                        } else {
+
+                            let last_modified: NaiveDate = file_last_modified_from_direntry(&entry);
+                            if last_modified < *cutoff_date {
+                                files_last_modified_before.push(entry);
                             }
 
                         }
