@@ -1,7 +1,7 @@
 # sweepster
 <div style="width:50%; height: 50%">
 ![sweepster logo](sweepster.png?raw=true "sweepster")
-</div>
+<div>
 Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
