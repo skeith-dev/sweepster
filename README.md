@@ -1,6 +1,6 @@
 # sweepster
 ![sweepster logo](sweepster.png?raw=true "sweepster")
-Your very own command-line file custodian! Find duplicate files, and other helpful tools.
+### Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
 sweepster is a file custodian; a helpful tool which keeps your computer tidy and free of clutter! Written in Rust,
