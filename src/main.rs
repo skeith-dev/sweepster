@@ -123,7 +123,7 @@ fn main() {
 
             },
 
-            //Search a directory for files OLDER than a GIVEN CUTOFF DATE
+            //Search a directory for files last modified before a GIVEN CUTOFF DATE
             5 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search:");
@@ -164,7 +164,7 @@ fn menu() -> u8 {
     println!("2. Search a directory for duplicate files BY CONTENTS");
     println!("3. Search a directory for files of a GIVEN NAME");
     println!("4. Search a directory for files of a GIVEN TYPE");
-    println!("5. Search a directory for files OLDER than a GIVEN CUTOFF DATE");
+    println!("5. Search a directory for files last modified before a GIVEN CUTOFF DATE");
     println!("0. Quit");
     println!();
 
