@@ -1,4 +1,4 @@
-# sweepster
+# sweepster <img src="sweepster.png" alt="sweepster" width="400" height="400" title="sweepster logo">
 <img src="sweepster.png" alt="sweepster" width="400" height="400" title="sweepster logo">
 ### Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
