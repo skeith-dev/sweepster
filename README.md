@@ -1,6 +1,5 @@
 # sweepster
-![sweepster logo](sweepster.png?raw=true "sweepster")
-<img src="sweepster.png" alt="sweepster" width="50" height="50" title="sweepster logo">
+<img src="sweepster.png" alt="sweepster" width="400" height="400" title="sweepster logo">
 ### Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
