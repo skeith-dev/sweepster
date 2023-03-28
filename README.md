@@ -1,5 +1,4 @@
-# sweepster
-![sweepster logo](sweepster.png?raw=true "sweepster")
+# sweepster <img src="sweepster.png" alt="sweepster" width="200" height="200" align="right" title="sweepster logo">
 ### Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
@@ -23,8 +22,13 @@ file extension.
 
 ### Search a directory for files of a GIVEN TYPE
 Walks through a specified directory and identifies all files of a given type, or file extension. This extension type
-SHOULD NOT include dot. For instance, pdf should be specified as "pdf", not ".pdf".
+SHOULD NOT include dot. For instance, pdf should be specified as "pdf", not ".pdf". Additionally, these extension
+types ARE case-sensitive. For example, to find ALL pdf files in a directory, pdf should be specified as "pdf"
+and "PDF".
 
 ### Search a directory for files last modified before a GIVEN CUTOFF DATE
 Walks through a specified directory and identifies all files which have last been modified prior to a given
 cutoff date. The cutoff date should be given in the format YYYY-mm-dd; for instance, 2021-01-01.
+
+### Search a directory for empty directories (folders)
+Walks through a specified directory and identifies all empty directories (folders).
