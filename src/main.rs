@@ -92,7 +92,7 @@ fn main() {
                 let now: Instant = Instant::now();
 
                 let mut files_of_names: Vec<DirEntry> = vec![];
-                custodian::find_files_of_names(&dir_path, &file_names, &mut files_of_names);
+                custodian::find_files_of_given_names(&dir_path, &file_names, &mut files_of_names);
 
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);

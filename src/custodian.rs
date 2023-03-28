@@ -433,7 +433,7 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
 
 }
 
-pub fn find_files_of_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
+pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
     match directory_result {
@@ -449,7 +449,7 @@ pub fn find_files_of_names(dir_path: &str, file_names: &Vec<String>, files_of_na
                         if entry.path().is_dir() {
 
                             let directory_path: String = file_path_from_direntry(&entry);
-                            find_files_of_names(directory_path.as_str(), file_names, files_of_names);
+                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_names);
 
                         } else {
 
