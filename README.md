@@ -1,5 +1,4 @@
-# sweepster
-![sweepster logo](sweepster.png?raw=true "sweepster")
+# sweepster ![sweepster logo](sweepster.png?raw=true "sweepster")
 ### Your very own command-line file custodian! Find duplicate files, and other helpful tools.
 
 ## Description
@@ -23,7 +22,9 @@ file extension.
 
 ### Search a directory for files of a GIVEN TYPE
 Walks through a specified directory and identifies all files of a given type, or file extension. This extension type
-SHOULD NOT include dot. For instance, pdf should be specified as "pdf", not ".pdf".
+SHOULD NOT include dot. For instance, pdf should be specified as "pdf", not ".pdf". Additionally, these extension
+types ARE case-sensitive. For example, to find ALL pdf files in a directory, pdf should be specified as "pdf"
+and "PDF".
 
 ### Search a directory for files last modified before a GIVEN CUTOFF DATE
 Walks through a specified directory and identifies all files which have last been modified prior to a given
