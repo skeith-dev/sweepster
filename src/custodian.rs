@@ -418,7 +418,7 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
                 Err(_) => {
                     println!("Could not open file at path: {}", file_2_path);
                     return false;
-                }
+                },
 
             }
 
@@ -464,7 +464,7 @@ pub fn find_files_of_names(dir_path: &str, file_names: &Vec<String>, files_of_na
 
                     Err(_) => {
                         println!("Could not open directory or file in directory: {}", dir_path);
-                    }
+                    },
 
                 }
 
@@ -511,7 +511,7 @@ pub fn find_files_of_given_types(dir_path: &str, file_types: &Vec<String>, files
 
                     Err(_) => {
                         println!("Could not open directory or file in directory: {}", dir_path);
-                    }
+                    },
 
                 }
 
@@ -559,6 +559,64 @@ pub fn find_files_last_modifed_before(dir_path: &str, cutoff_date: &NaiveDate, f
                     Err(_) => {
                         println!("Could not open directory or file in directory: {}", dir_path);
                     }
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
+pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEntry>) {
+
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
+
+        Ok(directory) => {
+
+            for path in directory {
+
+                match path {
+
+                    Ok(entry) => {
+
+                        if entry.path().is_dir() {
+
+                            let entry_directory_path: String = file_path_from_direntry(&entry);
+
+                            let entry_directory_result: Result<fs::ReadDir, std::io::Error> = entry.path().read_dir();
+                            match entry_directory_result {
+
+                                Ok(entry_directory) => {
+
+                                    if entry_directory.count() == 0 {
+                                        empty_directories.push(entry);
+                                    } else {
+                                        find_empty_directories(entry_directory_path.as_str(), empty_directories);
+                                    }
+
+                                },
+
+                                Err(_) => {
+                                    println!("Could not open directory at path: {}", entry_directory_path);
+                                }
+
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    },
 
                 }
 

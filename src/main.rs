@@ -143,6 +143,25 @@ fn main() {
 
             },
 
+            //Search a directory for empty directories (folders)
+            6 => {
+
+                let dir_path: String = string_prompt("Enter the path of the directory to search:");
+
+                let now: Instant = Instant::now();
+
+                let mut empty_directories: Vec<DirEntry> = vec![];
+                custodian::find_empty_directories(&dir_path, &mut empty_directories);
+
+                let elapsed: std::time::Duration = now.elapsed();
+                println!("\nCompleted in {:.2?}", elapsed);
+
+                let found_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(empty_directories);
+                let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
+                custodian::export_found_files_to_csv(csv_path.as_str(), found_files_bundle);
+
+            },
+
             //Quit
             0 => {
                 break;
@@ -165,6 +184,7 @@ fn menu() -> u8 {
     println!("3. Search a directory for files of a GIVEN NAME");
     println!("4. Search a directory for files of a GIVEN TYPE");
     println!("5. Search a directory for files last modified before a GIVEN CUTOFF DATE");
+    println!("6. Search a directory for empty directories (folders)");
     println!("0. Quit");
     println!();
 
