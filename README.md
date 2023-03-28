@@ -29,3 +29,6 @@ and "PDF".
 ### Search a directory for files last modified before a GIVEN CUTOFF DATE
 Walks through a specified directory and identifies all files which have last been modified prior to a given
 cutoff date. The cutoff date should be given in the format YYYY-mm-dd; for instance, 2021-01-01.
+
+### Search a directory for empty directories (folders)
+Walks through a specified directory and identifies all empty directories (folders).
