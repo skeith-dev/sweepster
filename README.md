@@ -32,3 +32,12 @@ cutoff date. The cutoff date should be given in the format YYYY-mm-dd; for insta
 
 ### Search a directory for empty directories (folders)
 Walks through a specified directory and identifies all empty directories (folders).
+
+### Generate an archive of a directory
+Walks through a specified directory and creates an identically-structured archive at a given directory. This archive
+will contain all the same folders as are in the "original" directory. Any files in the "original" directory which
+were last modified prior to a given cutoff date are moved over to their identical location in the archive. For example,
+a file named "test.txt" exists in a specified location "/this/is/an/example/test.txt". The file was last modified on
+2021-12-01. The user enters the parameters to generate an archive of "/this/is/an", with a cutoff date of 2022-01-01.
+After the custodian finishes executing this job, a new folder named "archive" (specified by the user) exists, and
+contains the file "test.txt" at the location "... /archive/example/test.txt".
