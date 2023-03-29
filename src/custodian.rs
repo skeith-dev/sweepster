@@ -632,7 +632,7 @@ pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEnt
 
 }
 
-pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str) {
+pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str, cutoff_date: &NaiveDate) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
     match directory_result {
@@ -658,13 +658,39 @@ pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str
                             match create_dir_result {
 
                                 Ok(_) => {
-                                    generate_archive(&entry_dir_path, &new_dir_path, file_separator);
+                                    generate_archive(&entry_dir_path, &new_dir_path, file_separator, cutoff_date);
                                 },
 
                                 Err(err) => {
                                     println!("Could not create directory at path: {}", new_dir_path);
                                     println!("{}", err);
                                 },
+
+                            }
+
+                        } else {
+
+                            let last_modified: NaiveDate = file_last_modified_from_direntry(&entry);
+                            if last_modified < *cutoff_date {
+                                
+                                let entry_file_name: String = file_name_from_direntry(&entry);
+                                let entry_file_path: String = file_path_from_direntry(&entry);
+
+                                let mut new_file_path: String = String::from(archive_path);
+                                new_file_path.push_str(file_separator);
+                                new_file_path.push_str(&entry_file_name);
+
+                                let rename_result: Result<(), std::io::Error> = fs::rename(&entry_file_path, &new_file_path);
+                                match rename_result {
+
+                                    Ok(_) => {},
+
+                                    Err(err) => {
+                                        println!("Could not rename (move) file at path \"{}\" to file at path \"{}\"", entry_file_path, new_file_path);
+                                        println!("{}", err);
+                                    },
+
+                                }
 
                             }
 

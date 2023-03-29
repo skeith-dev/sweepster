@@ -173,11 +173,12 @@ fn main() {
 
                     Ok(_) => {
 
-                        let file_separator: String = string_prompt("Enter the file separator character of your OS (\"\\\" for Windows, \"/\" for Unix):");
+                        let file_separator: String = string_prompt("Enter the file separator character of your OS (\"/\" for Unix, \"\\\" for Windows):");
+                        let cutoff_date: NaiveDate = date_prompt("Enter the cutoff date, formatted as YYYY-mm-dd (ex. 2020-01-01)");
 
                         let now: Instant = Instant::now();
 
-                        custodian::generate_archive(&dir_path, &archive_path, &file_separator);
+                        custodian::generate_archive(&dir_path, &archive_path, &file_separator, &cutoff_date);
 
                         let elapsed: std::time::Duration = now.elapsed();
                         println!("\nCompleted in {:.2?}", elapsed);
