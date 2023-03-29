@@ -632,6 +632,64 @@ pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEnt
 
 }
 
+pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str) {
+
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
+
+        Ok(directory) => {
+
+            for path in directory {
+
+                match path {
+
+                    Ok(entry) => {
+
+                        if entry.path().is_dir() {
+
+                            let entry_dir_name: String = file_name_from_direntry(&entry);
+                            let entry_dir_path: String = file_path_from_direntry(&entry);
+
+                            let mut new_dir_path: String = String::from(archive_path);
+                            new_dir_path.push_str(file_separator);
+                            new_dir_path.push_str(&entry_dir_name);
+
+                            let create_dir_result: Result<(), std::io::Error> = fs::create_dir(&new_dir_path);
+                            match create_dir_result {
+
+                                Ok(_) => {
+                                    generate_archive(&entry_dir_path, &new_dir_path, file_separator);
+                                },
+
+                                Err(err) => {
+                                    println!("Could not create directory at path: {}", new_dir_path);
+                                    println!("{}", err);
+                                },
+
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    },
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
+
+    }
+
+}
+
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 //EXPORTING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */

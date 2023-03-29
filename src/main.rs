@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fs::DirEntry;
+use std::fs::{DirEntry, self};
 use std::io;
 use std::time::Instant;
 use chrono::NaiveDate;
@@ -162,6 +162,37 @@ fn main() {
 
             },
 
+            //Generate an archive of a directory
+            7 => {
+
+                let dir_path: String = string_prompt("Enter the path of the directory to archive:");
+                let archive_path: String = string_prompt("Enter the path of the archive directory to generate:");
+
+                let create_archive_result: Result<(), io::Error> = fs::create_dir(&archive_path);
+                match create_archive_result {
+
+                    Ok(_) => {
+
+                        let file_separator: String = string_prompt("Enter the file separator character of your OS (\"\\\" for Windows, \"/\" for Unix):");
+
+                        let now: Instant = Instant::now();
+
+                        custodian::generate_archive(&dir_path, &archive_path, &file_separator);
+
+                        let elapsed: std::time::Duration = now.elapsed();
+                        println!("\nCompleted in {:.2?}", elapsed);
+
+                    },
+
+                    Err(err) => {
+                        println!("Could not create directory at path: {}", archive_path);
+                        println!("{}", err);
+                    },
+
+                }
+
+            },
+
             //Quit
             0 => {
                 break;
@@ -185,6 +216,7 @@ fn menu() -> u8 {
     println!("4. Search a directory for files of a GIVEN TYPE");
     println!("5. Search a directory for files last modified before a GIVEN CUTOFF DATE");
     println!("6. Search a directory for empty directories (folders)");
+    println!("7. Generate an archive of a directory");
     println!("0. Quit");
     println!();
 
