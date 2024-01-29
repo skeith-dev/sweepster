@@ -51,7 +51,7 @@ fn main() {
 
             },
 
-            //Search a directory for duplicate files BY SIZE
+            //Search a directory for duplicate files BY CONTENTS
             2 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search BY CONTENTS:");
