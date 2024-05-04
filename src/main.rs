@@ -55,6 +55,7 @@ fn main() {
             2 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search BY CONTENTS:");
+                let print_flag: bool = bool_prompt("Enable print flag (enter \"true\" or \"false\")? Enabling will print each file comparison as it occurs.");
 
                 let now: Instant = Instant::now();
 
@@ -71,7 +72,7 @@ fn main() {
 
                 let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
                 for value in file_cabinet.values_mut() {
-                    custodian::find_duplicates_by_contents(value, &mut duplicate_files);
+                    custodian::find_duplicates_by_contents(value, &mut duplicate_files, print_flag);
                 }
 
                 let elapsed: std::time::Duration = now.elapsed();
@@ -303,6 +304,43 @@ fn strings_prompt(prompt: &str) -> Vec<String> {
             println!("Invalid user input!");
             //recursively call function
             return strings_prompt(prompt);
+        },
+
+    }
+
+}
+
+fn bool_prompt(prompt: &str) -> bool {
+
+    println!();
+    println!("{}", prompt);
+
+    let mut selection: String = String::new();
+    let result: Result<usize, io::Error> = io::stdin().read_line(&mut selection);
+    match result {
+
+        Ok(_) => {
+            
+            //WITHOUT trim() FUNCTION, SELECTION INCLUDES \n AND ERRORS EVERY TIME
+            selection = String::from(selection.trim());
+            match selection.parse::<bool>() {
+
+                Ok(num_selection) => num_selection,
+
+                Err(_) => {
+                    println!("User input \"{}\" cannot be parsed into bool!", selection);
+                    //recursively call function
+                    return bool_prompt(prompt);
+                },
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Invalid user input!");
+            //recursively call function
+            return bool_prompt(prompt);
         },
 
     }

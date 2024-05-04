@@ -289,7 +289,7 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
 
 }
 
-pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
+pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>, print_flag: bool) {
 
     let mut files_by_size: HashMap<u64, Vec<DirEntry>> = HashMap::new();
 
@@ -341,7 +341,7 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
                     continue;
                 }
 
-                if compare_two_files_by_contents(&value[i], &value[j], true) { //FIXME
+                if compare_two_files_by_contents(&value[i], &value[j], print_flag) {
 
                     let duplicate_file: DirEntry = value.remove(j);
                     duplicate_files.push( (duplicate_file, file_path_from_direntry(&value[i])) );
