@@ -458,7 +458,12 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 
                             let file_name: String = file_name_from_direntry(&entry);
                             if file_names.iter().any(|e| file_name == *e) {
+
+                                let file_path: String = file_path_from_direntry(&entry);
+                                println!("{}", file_path);
+
                                 files_of_names.push(entry);
+
                             }
 
                         }
@@ -505,7 +510,12 @@ pub fn find_files_of_given_types(dir_path: &str, file_types: &Vec<String>, files
 
                             let file_type: String = file_extension_from_direntry(&entry);
                             if file_types.iter().any(|e| file_type == *e) {
+
+                                let file_path: String = file_path_from_direntry(&entry);
+                                println!("{}", file_path);
+
                                 files_of_types.push(entry);
+
                             }
 
                         }
@@ -552,7 +562,12 @@ pub fn find_files_last_modifed_before(dir_path: &str, cutoff_date: &NaiveDate, f
 
                             let last_modified: NaiveDate = file_last_modified_from_direntry(&entry);
                             if last_modified < *cutoff_date {
+
+                                let file_path: String = file_path_from_direntry(&entry);
+                                println!("{}", file_path);
+
                                 files_last_modified_before.push(entry);
+
                             }
 
                         }
@@ -600,6 +615,7 @@ pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEnt
                                 Ok(entry_directory) => {
 
                                     if entry_directory.count() == 0 {
+                                        println!("{}", entry_directory_path);
                                         empty_directories.push(entry);
                                     } else {
                                         find_empty_directories(entry_directory_path.as_str(), empty_directories);
