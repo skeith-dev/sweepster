@@ -88,7 +88,7 @@ fn main() {
             3 => {
 
                 let dir_path: String = string_prompt("Enter the path of the directory to search:");
-                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, NOT INCLUDING the file extension, separated by a single space:");
+                let file_names: Vec<String> = strings_prompt("Enter the file names to search for, INCLUDING the file extension, separated by a single space:");
 
                 let now: Instant = Instant::now();
 
