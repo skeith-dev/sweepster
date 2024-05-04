@@ -411,6 +411,7 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry)
 
                     }
 
+                    println!("{} == {}", file_1_path, file_2_path);
                     return true;
 
                 },
