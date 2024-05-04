@@ -254,7 +254,7 @@ pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String,
 //CLEANING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
 
     let mut files_by_name: HashMap<String, DirEntry> = HashMap::new();
 
@@ -266,12 +266,13 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
             Some(file) => {
 
                 let file_name: String = file_name_from_direntry(&file);
+                let file_path: String = file_path_from_direntry(&file);
 
                 let duplicate_file_result: Option<DirEntry> = files_by_name.insert(file_name, file);
                 match duplicate_file_result {
 
                     Some(duplicate_file) => {
-                        duplicate_files.push(duplicate_file);
+                        duplicate_files.push( (duplicate_file, file_path) );
                     },
 
                     None => {},
@@ -288,7 +289,7 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
 
 }
 
-pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<DirEntry>) {
+pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
 
     let mut files_by_size: HashMap<u64, Vec<DirEntry>> = HashMap::new();
 
@@ -340,11 +341,10 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
                     continue;
                 }
 
-                let are_equal: bool = compare_two_files_by_contents(&value[i], &value[j]);
-                if are_equal {
+                if compare_two_files_by_contents(&value[i], &value[j], true) { //FIXME
 
-                    let duplicate_file = value.remove(j);
-                    duplicate_files.push(duplicate_file);
+                    let duplicate_file: DirEntry = value.remove(j);
+                    duplicate_files.push( (duplicate_file, file_path_from_direntry(&value[i])) );
                     
                 }
 
@@ -356,12 +356,14 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
 
 }
 
-fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry) -> bool {
+fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry, print_flag: bool) -> bool {
 
     let file_1_path: String = file_path_from_direntry(&dir_entry_1);
     let file_2_path: String = file_path_from_direntry(&dir_entry_2);
 
-    println!("{} <-> {}", file_1_path, file_2_path);
+    if print_flag {
+        println!("{} <-> {}", file_1_path, file_2_path);
+    }
 
     let file_1_result: Result<File, std::io::Error> = File::open(&file_1_path);
     let file_2_result: Result<File, std::io::Error> = File::open(&file_2_path);
@@ -744,6 +746,29 @@ pub fn bundle_found_files(found_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
 }
 
+pub fn bundle_duplicate_files(found_files: Vec<(DirEntry, String)>) -> Vec<[String; 5]> {
+
+    //FOR WRITER; writer can write "results" in &str format
+    let mut duplicate_files_bundle: Vec<[String; 5]> = Vec::with_capacity(found_files.len());
+
+    found_files.into_iter().for_each( | file: (DirEntry, String) | {
+
+        let file_name: String = file_name_from_direntry(&file.0);
+        let file_path: String = file_path_from_direntry(&file.0);
+        let file_extension: String = file_extension_from_direntry(&file.0);
+        let file_size: String = file_size_from_direntry(&file.0).to_string();
+        
+        duplicate_files_bundle.push( [file_name, file_path, file.1, file_extension, file_size] );
+
+    });
+
+    duplicate_files_bundle.sort();
+    duplicate_files_bundle.insert(0, [String::from("FILE NAME"), String::from("FILE PATH"), String::from("ORIGINAL FILE PATH"), String::from("FILE TYPE"), String::from("FILE SIZE")]);
+
+    return duplicate_files_bundle;
+
+}
+
 pub fn export_found_files_to_csv(file_path: &str, found_files_bundle: Vec<[String; 4]>) {
 
     let writer_result: Result<csv::Writer<fs::File>, csv::Error> = csv::Writer::from_path(file_path);
@@ -754,6 +779,39 @@ pub fn export_found_files_to_csv(file_path: &str, found_files_bundle: Vec<[Strin
             for i in 0..found_files_bundle.len() {
 
                 let record: [&str; 4] = [found_files_bundle[i][0].as_str(), found_files_bundle[i][1].as_str(), found_files_bundle[i][2].as_str(), found_files_bundle[i][3].as_str()];
+
+                let write_record_result: Result<(), csv::Error> = writer.write_record(record);
+                match write_record_result {
+
+                    Ok(_) => {},
+
+                    Err(_) => {
+                        println!("Could not write duplicate file entry to CSV");
+                    },
+
+                }
+
+            }
+        },
+
+        Err(_) => {
+            println!("Could not create CSV writer for filepath: {}", file_path);
+        },
+
+    }
+
+}
+
+pub fn export_duplicate_files_to_csv(file_path: &str, duplicate_files_bundle: Vec<[String; 5]>) {
+
+    let writer_result: Result<csv::Writer<fs::File>, csv::Error> = csv::Writer::from_path(file_path);
+    match writer_result {
+
+        Ok(mut writer) => {
+
+            for i in 0..duplicate_files_bundle.len() {
+
+                let record: [&str; 5] = [duplicate_files_bundle[i][0].as_str(), duplicate_files_bundle[i][1].as_str(), duplicate_files_bundle[i][2].as_str(), duplicate_files_bundle[i][3].as_str(), duplicate_files_bundle[i][4].as_str()];
 
                 let write_record_result: Result<(), csv::Error> = writer.write_record(record);
                 match write_record_result {

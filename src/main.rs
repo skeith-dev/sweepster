@@ -37,7 +37,7 @@ fn main() {
 
                 custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
 
-                let mut duplicate_files: Vec<DirEntry> = vec![];
+                let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
                 for value in file_cabinet.values_mut() {
                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
                 }
@@ -45,9 +45,9 @@ fn main() {
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);
 
-                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(duplicate_files);
+                let duplicate_files_bundle: Vec<[String; 5]> = custodian::bundle_duplicate_files(duplicate_files);
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
-                custodian::export_found_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
+                custodian::export_duplicate_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
 
             },
 
@@ -69,7 +69,7 @@ fn main() {
 
                 custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
 
-                let mut duplicate_files: Vec<DirEntry> = vec![];
+                let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
                 for value in file_cabinet.values_mut() {
                     custodian::find_duplicates_by_contents(value, &mut duplicate_files);
                 }
@@ -77,9 +77,9 @@ fn main() {
                 let elapsed: std::time::Duration = now.elapsed();
                 println!("\nCompleted in {:.2?}", elapsed);
 
-                let duplicate_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(duplicate_files);
+                let duplicate_files_bundle: Vec<[String; 5]> = custodian::bundle_duplicate_files(duplicate_files);
                 let csv_path: String = string_prompt("Enter the path of the CSV file to export search results to:");
-                custodian::export_found_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
+                custodian::export_duplicate_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
 
             },
 
