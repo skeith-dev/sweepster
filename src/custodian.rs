@@ -651,7 +651,7 @@ pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEnt
 
 }
 
-pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str, cutoff_date: &NaiveDate) {
+pub fn generate_storage(dir_path: &str, storage_path: &str, file_separator: &str, cutoff_date: &NaiveDate) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
     match directory_result {
@@ -669,7 +669,7 @@ pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str
                             let entry_dir_name: String = file_name_from_direntry(&entry);
                             let entry_dir_path: String = file_path_from_direntry(&entry);
 
-                            let mut new_dir_path: String = String::from(archive_path);
+                            let mut new_dir_path: String = String::from(storage_path);
                             new_dir_path.push_str(file_separator);
                             new_dir_path.push_str(&entry_dir_name);
 
@@ -677,7 +677,7 @@ pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str
                             match create_dir_result {
 
                                 Ok(_) => {
-                                    generate_archive(&entry_dir_path, &new_dir_path, file_separator, cutoff_date);
+                                    generate_storage(&entry_dir_path, &new_dir_path, file_separator, cutoff_date);
                                 },
 
                                 Err(err) => {
@@ -695,7 +695,7 @@ pub fn generate_archive(dir_path: &str, archive_path: &str, file_separator: &str
                                 let entry_file_name: String = file_name_from_direntry(&entry);
                                 let entry_file_path: String = file_path_from_direntry(&entry);
 
-                                let mut new_file_path: String = String::from(archive_path);
+                                let mut new_file_path: String = String::from(storage_path);
                                 new_file_path.push_str(file_separator);
                                 new_file_path.push_str(&entry_file_name);
 
