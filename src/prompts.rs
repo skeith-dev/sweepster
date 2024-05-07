@@ -76,7 +76,7 @@ pub fn parse_prompt<T: std::str::FromStr>(message: &str) -> T {
                 Ok(num_selection) => num_selection,
 
                 Err(_) => {
-                    println!("User input \"{}\" cannot be parsed into bool!", selection);
+                    println!("User input \"{}\" cannot be parsed into {}!", selection, std::any::type_name::<T>());
                     //recursively call function
                     return parse_prompt::<T>(message);
                 },

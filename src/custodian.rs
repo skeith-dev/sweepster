@@ -651,9 +651,9 @@ pub fn find_empty_directories(dir_path: &str, empty_directories: &mut Vec<DirEnt
 
 }
 
-pub fn generate_storage(dir_path: &str, storage_path: &str, file_separator: &str, cutoff_date: &NaiveDate) {
+pub fn generate_storage(target: &str, storage_path: &str, file_separator: &str, cutoff_date: &NaiveDate) {
 
-    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(target);
     match directory_result {
 
         Ok(directory) => {
@@ -718,7 +718,7 @@ pub fn generate_storage(dir_path: &str, storage_path: &str, file_separator: &str
                     },
 
                     Err(_) => {
-                        println!("Could not open directory or file in directory: {}", dir_path);
+                        println!("Could not open directory or file in directory: {}", target);
                     },
 
                 }
@@ -728,7 +728,7 @@ pub fn generate_storage(dir_path: &str, storage_path: &str, file_separator: &str
         },
 
         Err(_) => {
-            println!("Could not open directory at path: {}", dir_path);
+            println!("Could not open directory at path: {}", target);
         },
 
     }

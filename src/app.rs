@@ -19,7 +19,7 @@ pub fn run() {
         let action: u8 = prompts::parse_prompt::<u8>("1. Search\n2. Sweep\n3. Store");
         let criteria: u8;
         let sub_criteria: u8;
-        let dir_path: String = prompts::string_prompt("Enter the path of the target directory:");
+        let target: String = prompts::string_prompt("Enter the path of the target directory:");
         
         match action {
 
@@ -42,7 +42,7 @@ pub fn run() {
                                 let now: Instant = Instant::now();
 
                                 let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                                custodian::count_files_by_type(&dir_path, &mut extension_counts);
+                                custodian::count_files_by_type(&target, &mut extension_counts);
                                 println!("\n{:?}", extension_counts);
 
                                 let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
@@ -50,7 +50,7 @@ pub fn run() {
                                     file_cabinet.insert(key, Vec::with_capacity(value as usize));
                                 }
 
-                                custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
+                                custodian::organize_files_by_type(&target, &mut file_cabinet);
 
                                 for value in file_cabinet.values_mut() {
                                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
@@ -68,7 +68,7 @@ pub fn run() {
                                 let now: Instant = Instant::now();
 
                                 let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                                custodian::count_files_by_type(&dir_path, &mut extension_counts);
+                                custodian::count_files_by_type(&target, &mut extension_counts);
                                 println!("\n{:?}", extension_counts);
 
                                 let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
@@ -76,7 +76,7 @@ pub fn run() {
                                     file_cabinet.insert(key, Vec::with_capacity(value as usize));
                                 }
 
-                                custodian::organize_files_by_type(&dir_path, &mut file_cabinet);
+                                custodian::organize_files_by_type(&target, &mut file_cabinet);
 
                                 for value in file_cabinet.values_mut() {
                                     custodian::find_duplicates_by_contents(value, &mut duplicate_files, print_flag);
@@ -113,7 +113,7 @@ pub fn run() {
 
                                 let now: Instant = Instant::now();
 
-                                custodian::find_files_of_given_names(&dir_path, &file_names, &mut files_of_criteria);
+                                custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria);
 
                                 let elapsed: std::time::Duration = now.elapsed();
                                 println!("\nCompleted in {:.2?}", elapsed);
@@ -127,7 +127,7 @@ pub fn run() {
 
                                 let now: Instant = Instant::now();
 
-                                custodian::find_files_of_given_types(&dir_path, &file_types, &mut files_of_criteria);
+                                custodian::find_files_of_given_types(&target, &file_types, &mut files_of_criteria);
 
                                 let elapsed: std::time::Duration = now.elapsed();
                                 println!("\nCompleted in {:.2?}", elapsed);
@@ -141,7 +141,7 @@ pub fn run() {
 
                                 let now: Instant = Instant::now();
 
-                                custodian::find_files_last_modifed_before(&dir_path, &cutoff_date, &mut files_of_criteria);
+                                custodian::find_files_last_modifed_before(&target, &cutoff_date, &mut files_of_criteria);
 
                                 let elapsed: std::time::Duration = now.elapsed();
                                 println!("\nCompleted in {:.2?}", elapsed);
@@ -153,7 +153,7 @@ pub fn run() {
 
                                 let now: Instant = Instant::now();
 
-                                custodian::find_empty_directories(&dir_path, &mut files_of_criteria);
+                                custodian::find_empty_directories(&target, &mut files_of_criteria);
 
                                 let elapsed: std::time::Duration = now.elapsed();
                                 println!("\nCompleted in {:.2?}", elapsed);
@@ -190,7 +190,7 @@ pub fn run() {
 
                         let now: Instant = Instant::now();
 
-                        custodian::generate_storage(&dir_path, &storage_path, &file_separator, &cutoff_date);
+                        custodian::generate_storage(&target, &storage_path, &file_separator, &cutoff_date);
 
                         let elapsed: std::time::Duration = now.elapsed();
                         println!("\nCompleted in {:.2?}", elapsed);
