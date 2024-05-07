@@ -884,23 +884,42 @@ mod tests {
             Some(tc) => {
                 txt_count = *tc;
             },
-            None => {
-                println!("Key \"txt\" was not found in extension_counts!");
-            },
+            None => { },
         }
 
         match extension_counts.get("csv") {
             Some(cc) => {
                 csv_count = *cc;
             },
-            None => {
-                println!("Key \"txt\" was not found in extension_counts!");
-            },
+            None => { },
         }
 
         assert_eq!(extension_counts.len(), 2);
         assert_eq!(txt_count, TEXT_FILES_COUNT);
         assert_eq!(csv_count, CSV_FILES_COUNT);
+
+    }
+
+    #[test]
+    fn test_organize_files_by_type() {
+
+        let mut extension_counts: HashMap<String, u32> = HashMap::new();
+        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
+        println!("\n{:?}", extension_counts);
+
+        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+        for (key, value) in extension_counts.into_iter() {
+            file_cabinet.insert(key, Vec::with_capacity(value as usize));
+        }
+
+        organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
+
+        for file_type in file_cabinet.iter() {
+            for file in file_type.1 {
+                assert_eq!(&file_extension_from_direntry(file), file_type.0);
+                println!("{} == {}", &file_extension_from_direntry(file), file_type.0);
+            }
+        }
 
     }
 
