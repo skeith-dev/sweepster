@@ -148,6 +148,7 @@ pub fn run() {
 
                             },
 
+                            //Empty directories
                             4 => {
 
                                 let now: Instant = Instant::now();
