@@ -341,7 +341,7 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
                     continue;
                 }
 
-                if compare_two_files_by_contents(&value[i], &value[j], print_flag) {
+                if compare_two_files_by_contents_given_direntries(&value[i], &value[j], print_flag) {
 
                     let duplicate_file: DirEntry = value.remove(j);
                     duplicate_files.push( (duplicate_file, file_path_from_direntry(&value[i])) );
@@ -356,7 +356,7 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
 
 }
 
-fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry, print_flag: bool) -> bool {
+fn compare_two_files_by_contents_given_direntries(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry, print_flag: bool) -> bool {
 
     let file_1_path: String = file_path_from_direntry(&dir_entry_1);
     let file_2_path: String = file_path_from_direntry(&dir_entry_2);
@@ -429,6 +429,79 @@ fn compare_two_files_by_contents(dir_entry_1: &DirEntry, dir_entry_2: &DirEntry,
 
         Err(_) => {
             println!("Could not open file at path: {}", file_1_path);
+            return false;
+        },
+
+    }
+
+}
+
+fn compare_two_files_by_contents_given_osstrs(osstr_1: &OsStr, osstr_2: &OsStr) -> bool {
+
+    let file_1_result: Result<File, std::io::Error> = File::open(osstr_1);
+    let file_2_result: Result<File, std::io::Error> = File::open(osstr_2);
+
+    match file_1_result {
+
+        Ok(file_1) => {
+
+            match file_2_result {
+
+                Ok(file_2) => {
+
+                    let file_1_reader: BufReader<File> = BufReader::new(file_1);
+                    let file_2_reader: BufReader<File> = BufReader::new(file_2);
+
+                    for (file_1_byte_result, file_2_byte_result) in file_1_reader.bytes().zip(file_2_reader.bytes()) {
+
+                        match file_1_byte_result {
+
+                            Ok(file_1_byte) => {
+
+                                match file_2_byte_result {
+
+                                    Ok(file_2_byte) => {
+
+                                        if file_1_byte != file_2_byte {
+                                            return false;
+                                        }
+
+                                    },
+
+                                    Err(_) => {
+                                        println!("Could not read byte from file at path: {:?}", osstr_2);
+                                        return false;
+                                    },
+
+                                }
+
+                            },
+
+                            Err(_) => {
+                                println!("Could not read byte from file at path: {:?}", osstr_1);
+                                return false;
+                            },
+
+                        }
+
+                    }
+
+                    println!("{:?} == {:?}", osstr_1, osstr_2);
+                    return true;
+
+                },
+
+                Err(_) => {
+                    println!("Could not open file at path: {:?}", osstr_2);
+                    return false;
+                },
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open file at path: {:?}", osstr_1);
             return false;
         },
 
@@ -866,7 +939,7 @@ mod tests {
     
     const TEST_FOLDER_PATH: &str = "test";
 
-    const TEXT_FILES_COUNT: u32 = 7;
+    const TEXT_FILES_COUNT: u32 = 11;
     const CSV_FILES_COUNT: u32 = 1;
     const DUPLICATE_FILES_BY_NAME_COUNT: usize = 2;
 
@@ -956,6 +1029,32 @@ mod tests {
 
             assert_eq!(duplicate_file.file_name(), original_file_name);
 
+        }
+
+    }
+
+    #[test]
+    fn find_duplicates_by_contents_test() {
+
+        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
+
+        let mut extension_counts: HashMap<String, u32> = HashMap::new();
+        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
+
+        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+        for (key, value) in extension_counts.into_iter() {
+            file_cabinet.insert(key, Vec::with_capacity(value as usize));
+        }
+
+        organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
+
+        for value in file_cabinet.values_mut() {
+            find_duplicates_by_contents(value, &mut duplicate_files, false);
+        }
+
+        assert_ne!(duplicate_files.len(), 0);
+        for (duplicate_file, original_file_path) in duplicate_files {
+            assert!( compare_two_files_by_contents_given_osstrs(duplicate_file.path().as_os_str(), &OsString::from(original_file_path)) );
         }
 
     }
