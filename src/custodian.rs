@@ -850,3 +850,58 @@ pub fn export_duplicate_files_to_csv(file_path: &str, duplicate_files_bundle: Ve
     }
 
 }
+
+
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+//Testing
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    
+    const TEST_FOLDER_PATH: &str = "test";
+    //const BATMAN_PATH: &str = "test/batman.txt";
+
+    const TEXT_FILES_COUNT: u32 = 3;
+    const CSV_FILES_COUNT: u32 = 1;
+
+
+    #[test]
+    fn test_count_files_by_type() {
+
+        let mut extension_counts: HashMap<String, u32> = HashMap::new();
+        let mut txt_count: u32 = 0;
+        let mut csv_count: u32 = 0;
+
+        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
+
+        print!("{:?}", extension_counts);
+
+        match extension_counts.get("txt") {
+            Some(tc) => {
+                txt_count = *tc;
+            },
+            None => {
+                println!("Key \"txt\" was not found in extension_counts!");
+            },
+        }
+
+        match extension_counts.get("csv") {
+            Some(cc) => {
+                csv_count = *cc;
+            },
+            None => {
+                println!("Key \"txt\" was not found in extension_counts!");
+            },
+        }
+
+        assert_eq!(extension_counts.len(), 2);
+        assert_eq!(txt_count, TEXT_FILES_COUNT);
+        assert_eq!(csv_count, CSV_FILES_COUNT);
+
+    }
+
+}

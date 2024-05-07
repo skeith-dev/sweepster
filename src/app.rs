@@ -5,7 +5,6 @@ use std::time::Instant;
 use chrono::NaiveDate;
 use terminal_fonts::to_block_string;
 
-use crate::prompts::parse_prompt;
 use crate::{custodian, prompts};
 
 
@@ -32,7 +31,7 @@ pub fn run() {
 
                     1 => {
 
-                        sub_criteria = parse_prompt::<u8>("1. By name\n2. By contents");
+                        sub_criteria = prompts::parse_prompt::<u8>("1. By name\n2. By contents");
                         let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
 
                         match sub_criteria {

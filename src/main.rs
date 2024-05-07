@@ -52,9 +52,10 @@ fn main() {
                         Ok(date) => {
                             cutoff_date = date;
                         },
-                        Err(_) => {
+                        Err(err) => {
                             println!("Could not parse &str to NaiveDate!");
                             println!("Ensure proper formatting (ex. 2020-01-01)");
+                            println!("{}", err);
                             break 'store;
                         },
                     }
@@ -82,6 +83,7 @@ fn main() {
                 Err(err) => {
                     println!("Could not create directory at path: {}", storage_path);
                     println!("{}", err);
+                    break 'store;
                 },
 
             }
