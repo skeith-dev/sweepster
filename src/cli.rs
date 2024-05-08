@@ -11,9 +11,9 @@ pub struct Cli {
     #[arg(short, long)]
     pub target: Option<String>,
     #[arg(short, long)]
-    pub criteria: Option<String>,
+    pub option: Option<String>,
     #[arg(short, long)]
-    pub sub_criteria: Option<String>,
+    pub criteria: Option<String>,
 
     #[arg(short, long)]
     pub print: Option<bool>,
