@@ -103,6 +103,7 @@ pub fn run() {
                         sub_criteria = prompts::parse_prompt::<u8>("1. By name\n2. By type\n3. By last modified\n4. Empty directories");
                         let mut files_of_criteria: Vec<DirEntry> = vec![];
 
+                        //FIXME
                         match sub_criteria {
 
                             //By name

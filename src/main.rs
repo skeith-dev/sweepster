@@ -1,4 +1,4 @@
-use std::{fs::{self, DirEntry}, io, time::Instant};
+use std::{collections::HashMap, fs::{self, DirEntry}, io, time::Instant};
 
 use chrono::NaiveDate;
 use clap::Parser;
@@ -43,28 +43,92 @@ fn main() {
                 }
             }
 
+            let criteria: String;
+            match cli.criteria {
+                Some(c) => {
+                    criteria = c;
+                },
+                None => {
+                    println!("Provide a criteria to search by!");
+                    break 'search;
+                }
+            }
+
             match option.as_str() {
 
                 "duplicates" => {
 
+                    let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
 
+                    match criteria.as_str() {
+
+                        "by_name" => {
+
+                            let now: Instant = Instant::now();
+
+                            let mut extension_counts: HashMap<String, u32> = HashMap::new();
+                            custodian::count_files_by_type(&target, &mut extension_counts);
+                            println!("\n{:?}", extension_counts);
+
+                            let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+                            for (key, value) in extension_counts.into_iter() {
+                                file_cabinet.insert(key, Vec::with_capacity(value as usize));
+                            }
+
+                            custodian::organize_files_by_type(&target, &mut file_cabinet);
+
+                            for value in file_cabinet.values_mut() {
+                                custodian::find_duplicates_by_name(value, &mut duplicate_files);
+                            }
+
+                            let elapsed: std::time::Duration = now.elapsed();
+                            println!("\nCompleted in {:.2?}", elapsed);
+
+                        },
+
+                        "by_contents" => {
+
+                            let mut print: bool = false;
+                            match cli.print {
+                                Some(p) => {
+                                    print = p;
+                                },
+                                None => { },
+                            }
+
+                            let now: Instant = Instant::now();
+
+                            let mut extension_counts: HashMap<String, u32> = HashMap::new();
+                            custodian::count_files_by_type(&target, &mut extension_counts);
+                            println!("\n{:?}", extension_counts);
+
+                            let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+                            for (key, value) in extension_counts.into_iter() {
+                                file_cabinet.insert(key, Vec::with_capacity(value as usize));
+                            }
+
+                            custodian::organize_files_by_type(&target, &mut file_cabinet);
+
+                            for value in file_cabinet.values_mut() {
+                                custodian::find_duplicates_by_contents(value, &mut duplicate_files, print);
+                            }
+
+                            let elapsed: std::time::Duration = now.elapsed();
+                            println!("\nCompleted in {:.2?}", elapsed);
+
+                        },
+
+                        _ => {
+
+                        },
+
+                    }
 
                 },
 
                 "by_criteria" => {
 
                     let mut files_of_criteria: Vec<DirEntry> = vec![];
-
-                    let criteria: String;
-                    match cli.criteria {
-                        Some(c) => {
-                            criteria = c;
-                        },
-                        None => {
-                            println!("Provide a subcriteria to search by!");
-                            break 'search;
-                        }
-                    }
 
                     match criteria.as_str() {
 
@@ -156,7 +220,7 @@ fn main() {
                         },
 
                         _ => {
-                            println!("Provide a valid subcriteria!")
+                            println!("Provide a valid criteria!")
                         },
 
                     }

@@ -272,6 +272,7 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
                 match duplicate_file_result {
 
                     Some(duplicate_file) => {
+                        println!("{} == {}", duplicate_file.path().display(), file_path);
                         duplicate_files.push( (duplicate_file, file_path) );
                     },
 
