@@ -119,15 +119,41 @@ fn main() {
                         },
 
                         _ => {
-
+                            println!("Provide a valid criteria!");
+                            break 'search_or_sweep;
                         },
 
                     }
 
-                    //TODO csv export
+                    match cli.action.as_str() {
 
-                    if cli.action.as_str() == "sweep" {
-                        custodian::delete_duplicate_files(&mut duplicate_files);
+                        "search" => {
+
+                            let csv_path: String;
+                            match cli.csv_path {
+                                Some(csv_p) => {
+                                    csv_path = csv_p;
+                                },
+                                None => {
+                                    println!("Provide a filepath to the target directory!");
+                                    break 'search_or_sweep;
+                                },
+                            }
+
+                            let duplicate_files_bundle: Vec<[String; 5]> = custodian::bundle_duplicate_files(duplicate_files);
+                            custodian::export_duplicate_files_to_csv(csv_path.as_str(), duplicate_files_bundle);
+
+                        },
+
+                        "sweep" => {
+                            custodian::delete_duplicate_files(&mut duplicate_files);
+                        },
+
+                        _ => {
+                            println!("Provide a valid action!");
+                            break 'search_or_sweep;
+                        },
+
                     }
 
                 },
@@ -226,7 +252,39 @@ fn main() {
                         },
 
                         _ => {
-                            println!("Provide a valid criteria!")
+                            println!("Provide a valid criteria!");
+                            break 'search_or_sweep;
+                        },
+
+                    }
+
+                    match cli.action.as_str() {
+
+                        "search" => {
+
+                            let csv_path: String;
+                            match cli.csv_path {
+                                Some(csv_p) => {
+                                    csv_path = csv_p;
+                                },
+                                None => {
+                                    println!("Provide a filepath to the target directory!");
+                                    break 'search_or_sweep;
+                                },
+                            }
+
+                            let found_files_bundle: Vec<[String; 4]> = custodian::bundle_found_files(files_of_criteria);
+                            custodian::export_found_files_to_csv(csv_path.as_str(), found_files_bundle);
+
+                        },
+
+                        "sweep" => {
+                            custodian::delete_found_files(&mut files_of_criteria);
+                        },
+
+                        _ => {
+                            println!("Provide a valid action!");
+                            break 'search_or_sweep;
                         },
 
                     }
@@ -314,7 +372,9 @@ fn main() {
 
         },
 
-        _ => { },
+        _ => {
+            println!("Provide a valid option!");
+        },
 
     }
     

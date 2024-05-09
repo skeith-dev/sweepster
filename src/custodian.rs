@@ -546,6 +546,41 @@ pub fn delete_duplicate_files(duplicate_files: &mut Vec<(DirEntry, String)>) {
 
 }
 
+pub fn delete_found_files(files_of_criteria: &mut Vec<DirEntry>) {
+
+    while !files_of_criteria.is_empty() {
+
+        match files_of_criteria.pop() {
+
+            Some(file_of_criteria) => {
+
+                match fs::remove_file(file_of_criteria.path()) {
+
+                    Ok(_) => {
+                        println!("✔ -> {}", file_of_criteria.path().display());
+                    },
+    
+                    Err(err) => {
+                        println!("✘ -> {}", file_of_criteria.path().display());
+                        println!("{}", err);
+                    },
+    
+                } 
+
+            },
+
+            None => {
+                println!("Cannot pop from duplicate_files!");
+            },
+
+        }
+
+        
+
+    }
+
+}
+
 pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
