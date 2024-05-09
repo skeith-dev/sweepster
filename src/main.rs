@@ -19,7 +19,7 @@ fn main() {
             app::run();
         },
 
-        "search" => 'search: {
+        "search" | "sweep" => 'search_or_sweep: {
 
             let target: String;
             match cli.target {
@@ -28,7 +28,7 @@ fn main() {
                 },
                 None => {
                     println!("Provide a filepath to the target directory!");
-                    break 'search;
+                    break 'search_or_sweep;
                 },
             }
 
@@ -39,7 +39,7 @@ fn main() {
                 },
                 None => {
                     println!("Provide an option to search by!");
-                    break 'search;
+                    break 'search_or_sweep;
                 }
             }
 
@@ -50,7 +50,7 @@ fn main() {
                 },
                 None => {
                     println!("Provide a criteria to search by!");
-                    break 'search;
+                    break 'search_or_sweep;
                 }
             }
 
@@ -141,7 +141,7 @@ fn main() {
                                 },
                                 None => {
                                     println!("Provide file names to search for!");
-                                    break 'search;
+                                    break 'search_or_sweep;
                                 },
                             }
 
@@ -163,7 +163,7 @@ fn main() {
                                 },
                                 None => {
                                     println!("Provide file types to search for!");
-                                    break 'search;
+                                    break 'search_or_sweep;
                                 },
                             }
 
@@ -189,13 +189,13 @@ fn main() {
                                             println!("Could not parse &str to NaiveDate!");
                                             println!("Ensure proper formatting (ex. 2020-01-01)");
                                             println!("{}", err);
-                                            break 'search;
+                                            break 'search_or_sweep;
                                         },
                                     }
                                 },
                                 None => {
                                     println!("Provide a cutoff date!");
-                                    break 'search;
+                                    break 'search_or_sweep;
                                 },
                             }
 
@@ -229,14 +229,10 @@ fn main() {
 
                 _ => {
                     println!("Provide a valid option!");
-                    break 'search;
+                    break 'search_or_sweep;
                 },
 
             }
-
-        },
-
-        "sweep" => {
 
         },
 
@@ -316,4 +312,33 @@ fn main() {
 
     }
     
+}
+
+
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+//Testing
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+
+
+#[cfg(test)]
+mod tests {
+
+    use std::process::Command;
+    
+    use assert_cmd::cargo::CommandCargoExt;
+
+
+    #[test]
+    fn search_invalid_target_failure() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command =  Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("search").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt").arg("-t").arg("test/non_existent_directory");
+        
+        let output =  cmd.output()?;
+        assert!(String::from_utf8_lossy(&output.stdout).contains("Could not open directory at path"));
+
+        return Ok(());
+
+    }
+
 }
