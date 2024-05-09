@@ -436,6 +436,7 @@ fn compare_two_files_by_contents_given_direntries(dir_entry_1: &DirEntry, dir_en
 
 }
 
+#[allow(dead_code)]
 fn compare_two_files_by_contents_given_osstrs(osstr_1: &OsStr, osstr_2: &OsStr) -> bool {
 
     let file_1_result: Result<File, std::io::Error> = File::open(osstr_1);
