@@ -323,9 +323,8 @@ fn main() {
 #[cfg(test)]
 mod tests {
 
-    use std::process::Command;
-    
     use assert_cmd::cargo::CommandCargoExt;
+    use std::process::Command;
 
 
     #[test]
