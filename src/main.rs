@@ -124,6 +124,12 @@ fn main() {
 
                     }
 
+                    //TODO csv export
+
+                    if cli.action.as_str() == "sweep" {
+                        custodian::delete_duplicate_files(&mut duplicate_files);
+                    }
+
                 },
 
                 "by_criteria" => {

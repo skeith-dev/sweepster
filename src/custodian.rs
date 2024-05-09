@@ -511,6 +511,41 @@ fn compare_two_files_by_contents_given_osstrs(osstr_1: &OsStr, osstr_2: &OsStr) 
 
 }
 
+pub fn delete_duplicate_files(duplicate_files: &mut Vec<(DirEntry, String)>) {
+
+    while !duplicate_files.is_empty() {
+
+        match duplicate_files.pop() {
+
+            Some((duplicate_file, _)) => {
+
+                match fs::remove_file(duplicate_file.path()) {
+
+                    Ok(_) => {
+                        println!("✔ -> {}", duplicate_file.path().display());
+                    },
+    
+                    Err(err) => {
+                        println!("✘ -> {}", duplicate_file.path().display());
+                        println!("{}", err);
+                    },
+    
+                } 
+
+            },
+
+            None => {
+                println!("Cannot pop from duplicate_files!");
+            },
+
+        }
+
+        
+
+    }
+
+}
+
 pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
@@ -842,14 +877,14 @@ pub fn bundle_duplicate_files(found_files: Vec<(DirEntry, String)>) -> Vec<[Stri
     //FOR WRITER; writer can write "results" in &str format
     let mut duplicate_files_bundle: Vec<[String; 5]> = Vec::with_capacity(found_files.len());
 
-    found_files.into_iter().for_each( | file: (DirEntry, String) | {
+    found_files.into_iter().for_each( | (duplicate_file, original_file_path) | {
 
-        let file_name: String = file_name_from_direntry(&file.0);
-        let file_path: String = file_path_from_direntry(&file.0);
-        let file_extension: String = file_extension_from_direntry(&file.0);
-        let file_size: String = file_size_from_direntry(&file.0).to_string();
+        let file_name: String = file_name_from_direntry(&duplicate_file);
+        let file_path: String = file_path_from_direntry(&duplicate_file);
+        let file_extension: String = file_extension_from_direntry(&duplicate_file);
+        let file_size: String = file_size_from_direntry(&duplicate_file).to_string();
         
-        duplicate_files_bundle.push( [file_name, file_path, file.1, file_extension, file_size] );
+        duplicate_files_bundle.push( [file_name, file_path, original_file_path, file_extension, file_size] );
 
     });
 
@@ -990,9 +1025,9 @@ mod tests {
 
         organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
 
-        for file_type in file_cabinet.iter() {
-            for file in file_type.1 {
-                assert_eq!(&file_extension_from_direntry(file), file_type.0);
+        for (file_extension, files_of_type) in file_cabinet.iter() {
+            for file in files_of_type {
+                assert_eq!(&file_extension_from_direntry(file), file_extension);
             }
         }
 
