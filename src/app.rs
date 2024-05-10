@@ -39,17 +39,7 @@ pub fn run() {
                             1 => {
 
                                 let now: Instant = Instant::now();
-
-                                let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                                custodian::count_files_by_type(&target, &mut extension_counts);
-                                println!("\n{:?}", extension_counts);
-
-                                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
-                                for (key, value) in extension_counts.into_iter() {
-                                    file_cabinet.insert(key, Vec::with_capacity(value as usize));
-                                }
-
-                                custodian::organize_files_by_type(&target, &mut file_cabinet);
+                                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = set_up_file_cabinet(&target);
 
                                 for value in file_cabinet.values_mut() {
                                     custodian::find_duplicates_by_name(value, &mut duplicate_files);
@@ -65,17 +55,7 @@ pub fn run() {
                                 let print_flag: bool = prompts::parse_prompt::<bool>("Enable print flag (enter \"true\" or \"false\")? Enabling will print each file comparison as it occurs.");
 
                                 let now: Instant = Instant::now();
-
-                                let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                                custodian::count_files_by_type(&target, &mut extension_counts);
-                                println!("\n{:?}", extension_counts);
-
-                                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
-                                for (key, value) in extension_counts.into_iter() {
-                                    file_cabinet.insert(key, Vec::with_capacity(value as usize));
-                                }
-
-                                custodian::organize_files_by_type(&target, &mut file_cabinet);
+                                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = set_up_file_cabinet(&target);
 
                                 for value in file_cabinet.values_mut() {
                                     custodian::find_duplicates_by_contents(value, &mut duplicate_files, print_flag);
@@ -85,7 +65,6 @@ pub fn run() {
                                 println!("\nCompleted in {:.2?}", elapsed);
 
                             },
-
                             
                             _ => { },
 
@@ -208,6 +187,109 @@ pub fn run() {
 
             _ => { },
 
+        }
+
+    }
+
+}
+
+fn set_up_file_cabinet(dir_path: &str) -> HashMap<String, Vec<DirEntry>> {
+
+    let mut extension_counts: HashMap<String, u32> = HashMap::new();
+    custodian::count_files_by_type(dir_path, &mut extension_counts);
+
+    let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+    for (key, value) in extension_counts.into_iter() {
+        file_cabinet.insert(key, Vec::with_capacity(value as usize));
+    }
+
+    custodian::organize_files_by_type(dir_path, &mut file_cabinet);
+
+    return file_cabinet;
+
+}
+
+
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+//Testing
+/* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
+
+
+#[cfg(test)]
+mod tests {
+
+    use std::collections::HashMap;
+    use std::ffi::OsString;
+    use std::fs::DirEntry;
+    use std::path::Path;
+    
+    use clap::builder::OsStr;
+
+    use crate::{app::{self, set_up_file_cabinet},custodian};
+
+    const TEST_FOLDER_PATH: &str = "test";
+
+    const BATMAN_FILES_COUNT: u32 = 1;
+    const CATWOMAN_FILES_COUNT: u32 = 2;
+    const DUPLICATE_FILES_BY_NAME_COUNT: usize = 2;
+
+    
+    #[test]
+    fn find_duplicates_by_name_test() {
+
+        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
+        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = app::set_up_file_cabinet(TEST_FOLDER_PATH);
+
+        for value in file_cabinet.values_mut() {
+            custodian::find_duplicates_by_name(value, &mut duplicate_files);
+        }
+
+        assert_eq!(duplicate_files.len(), DUPLICATE_FILES_BY_NAME_COUNT);
+        for (duplicate_file, original_file_path) in duplicate_files {
+
+            let mut original_file_name: OsString = OsString::with_capacity(duplicate_file.file_name().len());
+
+            match Path::new(&original_file_path).file_name() {
+                Some(ofn) => {
+                    original_file_name.push(ofn);
+                },
+                None => { },
+            }
+
+            assert_eq!(duplicate_file.file_name(), original_file_name);
+
+        }
+
+    }
+
+    #[test]
+    fn find_duplicates_by_contents_test() {
+
+        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
+        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = set_up_file_cabinet(TEST_FOLDER_PATH);
+
+        for value in file_cabinet.values_mut() {
+            custodian::find_duplicates_by_contents(value, &mut duplicate_files, false);
+        }
+
+        assert_ne!(duplicate_files.len(), 0);
+        for (duplicate_file, original_file_path) in duplicate_files {
+            assert!( custodian::compare_two_files_by_contents_given_osstrs(duplicate_file.path().as_os_str(), &OsString::from(original_file_path)) );
+        }
+
+    }
+
+    #[test]
+    fn find_files_of_given_names_test() {
+
+        let mut files_of_criteria: Vec<DirEntry> = vec![];
+        let file_names: Vec<String> = vec![String::from("batman.txt"), String::from("catwoman.txt")];
+
+        custodian::find_files_of_given_names(TEST_FOLDER_PATH, &file_names, &mut files_of_criteria);
+
+        assert_eq!(files_of_criteria.len(), (BATMAN_FILES_COUNT + CATWOMAN_FILES_COUNT) as usize);
+        for file_of_criteria in files_of_criteria {
+            assert!(file_of_criteria.file_name().as_os_str() == OsStr::from("batman.txt") || file_of_criteria.file_name().as_os_str() == OsStr::from("catwoman.txt"));
         }
 
     }

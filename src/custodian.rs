@@ -438,7 +438,7 @@ fn compare_two_files_by_contents_given_direntries(dir_entry_1: &DirEntry, dir_en
 }
 
 #[allow(dead_code)]
-fn compare_two_files_by_contents_given_osstrs(osstr_1: &OsStr, osstr_2: &OsStr) -> bool {
+pub fn compare_two_files_by_contents_given_osstrs(osstr_1: &OsStr, osstr_2: &OsStr) -> bool {
 
     let file_1_result: Result<File, std::io::Error> = File::open(osstr_1);
     let file_2_result: Result<File, std::io::Error> = File::open(osstr_2);
@@ -1006,14 +1006,11 @@ pub fn export_duplicate_files_to_csv(file_path: &str, duplicate_files_bundle: Ve
 mod tests {
 
     use super::*;
-    use std::ffi::OsString;
-    use std::path::Path;
     
     const TEST_FOLDER_PATH: &str = "test";
 
     const TEXT_FILES_COUNT: u32 = 11;
     const CSV_FILES_COUNT: u32 = 1;
-    const DUPLICATE_FILES_BY_NAME_COUNT: usize = 2;
 
 
     #[test]
@@ -1064,69 +1061,6 @@ mod tests {
             for file in files_of_type {
                 assert_eq!(&file_extension_from_direntry(file), file_extension);
             }
-        }
-
-    }
-
-    #[test]
-    fn find_duplicates_by_name_test() {
-
-        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
-
-        let mut extension_counts: HashMap<String, u32> = HashMap::new();
-        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
-
-        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
-        for (key, value) in extension_counts.into_iter() {
-            file_cabinet.insert(key, Vec::with_capacity(value as usize));
-        }
-
-        organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
-
-        for value in file_cabinet.values_mut() {
-            find_duplicates_by_name(value, &mut duplicate_files);
-        }
-
-        assert_eq!(duplicate_files.len(), DUPLICATE_FILES_BY_NAME_COUNT);
-        for (duplicate_file, original_file_path) in duplicate_files {
-
-            let mut original_file_name: OsString = OsString::with_capacity(duplicate_file.file_name().len());
-
-            match Path::new(&original_file_path).file_name() {
-                Some(ofn) => {
-                    original_file_name.push(ofn);
-                },
-                None => { },
-            }
-
-            assert_eq!(duplicate_file.file_name(), original_file_name);
-
-        }
-
-    }
-
-    #[test]
-    fn find_duplicates_by_contents_test() {
-
-        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
-
-        let mut extension_counts: HashMap<String, u32> = HashMap::new();
-        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
-
-        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
-        for (key, value) in extension_counts.into_iter() {
-            file_cabinet.insert(key, Vec::with_capacity(value as usize));
-        }
-
-        organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
-
-        for value in file_cabinet.values_mut() {
-            find_duplicates_by_contents(value, &mut duplicate_files, false);
-        }
-
-        assert_ne!(duplicate_files.len(), 0);
-        for (duplicate_file, original_file_path) in duplicate_files {
-            assert!( compare_two_files_by_contents_given_osstrs(duplicate_file.path().as_os_str(), &OsString::from(original_file_path)) );
         }
 
     }
