@@ -218,7 +218,7 @@ fn set_up_file_cabinet(dir_path: &str) -> HashMap<String, Vec<DirEntry>> {
 #[cfg(test)]
 mod tests {
 
-    use std::collections::HashMap;
+    use std::{collections::HashMap, fs};
     use std::ffi::OsString;
     use std::fs::DirEntry;
     use std::path::Path;
@@ -313,7 +313,9 @@ mod tests {
     }
 
     #[test]
-    fn find_empty_directories_test() {
+    fn find_empty_directories_test() -> std::io::Result<()> {
+
+        fs::create_dir_all("test/better_superheroes")?;
 
         let mut files_of_criteria: Vec<DirEntry> = vec![];
 
@@ -323,6 +325,8 @@ mod tests {
         for file_of_criteria in files_of_criteria {
             assert!(file_of_criteria.file_name().as_os_str() == OsStr::from("better_superheroes"));
         }
+
+        return Ok(());
 
     }
 
