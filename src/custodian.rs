@@ -1008,28 +1008,24 @@ mod tests {
     use super::*;
     
     const TEST_FOLDER_PATH: &str = "test";
+    const NUMBER_OF_FILE_TYPES: u32 = 3;
 
-    const TEXT_FILES_COUNT: u32 = 11;
     const CSV_FILES_COUNT: u32 = 1;
+    const PNG_FILE_COUNT: u32 = 2;
+    const TEXT_FILES_COUNT: u32 = 11;
 
 
     #[test]
     fn test_count_files_by_type() {
 
         let mut extension_counts: HashMap<String, u32> = HashMap::new();
-        let mut txt_count: u32 = 0;
         let mut csv_count: u32 = 0;
+        let mut png_count: u32 = 0;
+        let mut txt_count: u32 = 0;
 
         count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
 
         print!("{:?}", extension_counts);
-
-        match extension_counts.get("txt") {
-            Some(tc) => {
-                txt_count = *tc;
-            },
-            None => { },
-        }
 
         match extension_counts.get("csv") {
             Some(cc) => {
@@ -1038,9 +1034,24 @@ mod tests {
             None => { },
         }
 
-        assert_eq!(extension_counts.len(), 2);
-        assert_eq!(txt_count, TEXT_FILES_COUNT);
+        match extension_counts.get("png") {
+            Some(pc) => {
+                png_count = *pc;
+            },
+            None => { },
+        }
+        
+        match extension_counts.get("txt") {
+            Some(tc) => {
+                txt_count = *tc;
+            },
+            None => { },
+        }
+
+        assert_eq!(extension_counts.len(), NUMBER_OF_FILE_TYPES as usize);
         assert_eq!(csv_count, CSV_FILES_COUNT);
+        assert_eq!(png_count, PNG_FILE_COUNT);
+        assert_eq!(txt_count, TEXT_FILES_COUNT);
 
     }
 

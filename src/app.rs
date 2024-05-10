@@ -231,7 +231,9 @@ mod tests {
 
     const BATMAN_FILES_COUNT: u32 = 1;
     const CATWOMAN_FILES_COUNT: u32 = 2;
+    const CSV_FILE_COUNT: u32 = 1;
     const DUPLICATE_FILES_BY_NAME_COUNT: usize = 2;
+    const PNG_FILE_COUNT: u32 = 2;
 
     
     #[test]
@@ -290,6 +292,21 @@ mod tests {
         assert_eq!(files_of_criteria.len(), (BATMAN_FILES_COUNT + CATWOMAN_FILES_COUNT) as usize);
         for file_of_criteria in files_of_criteria {
             assert!(file_of_criteria.file_name().as_os_str() == OsStr::from("batman.txt") || file_of_criteria.file_name().as_os_str() == OsStr::from("catwoman.txt"));
+        }
+
+    }
+
+    #[test]
+    fn find_files_of_given_types_test() {
+
+        let mut files_of_criteria: Vec<DirEntry> = vec![];
+        let file_types: Vec<String> = vec![String::from("png"), String::from("csv")];
+
+        custodian::find_files_of_given_types(TEST_FOLDER_PATH, &file_types, &mut files_of_criteria);
+
+        assert_eq!(files_of_criteria.len(), (CSV_FILE_COUNT + PNG_FILE_COUNT) as usize);
+        for file_of_criteria in files_of_criteria {
+            assert!(file_of_criteria.file_name().as_os_str() == OsStr::from("batman.png") || file_of_criteria.file_name().as_os_str() == OsStr::from("robin.png") || file_of_criteria.file_name().as_os_str() == OsStr::from("vehicles.csv"));
         }
 
     }
