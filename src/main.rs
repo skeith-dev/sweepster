@@ -135,7 +135,7 @@ fn main() {
                                     csv_path = csv_p;
                                 },
                                 None => {
-                                    println!("Provide a filepath to the target directory!");
+                                    println!("No CSV filepath provided");
                                     break 'search_or_sweep;
                                 },
                             }
@@ -268,7 +268,7 @@ fn main() {
                                     csv_path = csv_p;
                                 },
                                 None => {
-                                    println!("Provide a filepath to the target directory!");
+                                    println!("No CSV filepath provided");
                                     break 'search_or_sweep;
                                 },
                             }
@@ -440,6 +440,22 @@ mod tests {
 
         let output: std::process::Output = cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid criteria!"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn search_duplicates_by_name() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
+
+        let output: std::process::Output = cmd.output()?;
+        let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        assert!(std_output.contains("catwoman.txt"));
+        assert!(std_output.contains("red_hood.txt"));
 
         return Ok(());
 
