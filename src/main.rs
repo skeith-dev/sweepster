@@ -446,7 +446,7 @@ mod tests {
     }
 
     #[test]
-    fn search_duplicates_by_name() -> Result<(), Box<dyn std::error::Error>> {
+    fn search_duplicates_by_name_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
         cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
@@ -462,7 +462,7 @@ mod tests {
     }
 
     #[test]
-    fn search_duplicates_by_contents() -> Result<(), Box<dyn std::error::Error>> {
+    fn search_duplicates_by_contents_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
         cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_contents");
