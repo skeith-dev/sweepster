@@ -373,7 +373,7 @@ fn main() {
         },
 
         _ => {
-            println!("Provide a valid option!");
+            println!("Provide a valid action!");
         },
 
     }
@@ -394,13 +394,52 @@ mod tests {
 
 
     #[test]
-    fn search_invalid_target_failure() -> Result<(), Box<dyn std::error::Error>> {
+    fn invalid_action_failure() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("non_existent_action").arg("-t").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+
+        let output: std::process::Output = cmd.output()?;
+        assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid action!"));
+
+        return Ok(());
+
+    }
+    
+    #[test]
+    fn invalid_target_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command =  Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt").arg("-t").arg("test/non_existent_directory");
+        cmd.arg("-a").arg("search").arg("-t").arg("test/non_existent_directory").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
         
-        let output =  cmd.output()?;
+        let output: std::process::Output =  cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Could not open directory at path"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn invalid_option_failure() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command =  Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("non_existent_option").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        
+        let output: std::process::Output =  cmd.output()?;
+        assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid option!"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn invalid_criteria_failure() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_non_existent_criteria").arg("-n").arg("file.txt");
+
+        let output: std::process::Output = cmd.output()?;
+        assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid criteria!"));
 
         return Ok(());
 
