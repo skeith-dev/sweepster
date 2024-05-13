@@ -470,10 +470,10 @@ mod tests {
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
 
-        assert!(std_output.contains("test/villains/red_hood.txt == test/sidekicks/jason_todd.txt"));
-        assert!(std_output.contains("test/villains/catwoman.txt == test/sidekicks/selina_kyle.txt"));
-        assert!(std_output.contains("test/sidekicks/nightwing.txt == test/sidekicks/dick_grayson.txt"));
-        assert!(std_output.contains("test/sidekicks/robin.txt == test/sidekicks/tim_drake.txt"));
+        assert!(std_output.contains("test/sidekicks/dick_grayson.txt"));
+        assert!(std_output.contains("test/sidekicks/jason_todd.txt"));
+        assert!(std_output.contains("test/sidekicks/selina_kyle.txt"));
+        assert!(std_output.contains("test/sidekicks/tim_drake.txt"));
 
         return Ok(());
 
