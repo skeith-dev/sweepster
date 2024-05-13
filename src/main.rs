@@ -461,4 +461,29 @@ mod tests {
 
     }
 
+    #[test]
+    fn search_duplicates_by_contents() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_contents");
+
+        let output: std::process::Output = cmd.output()?;
+        let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        assert!(std_output.contains("catwoman.txt"));
+        assert!(std_output.contains("selina_kyle.txt"));
+
+        assert!(std_output.contains("nightwing.txt"));
+        assert!(std_output.contains("dick_grayson.txt"));
+
+        assert!(std_output.contains("red_hood.txt"));
+        assert!(std_output.contains("jason_todd.txt"));
+
+        assert!(std_output.contains("robin.txt"));
+        assert!(std_output.contains("tim_drake.txt"));
+
+        return Ok(());
+
+    }
+
 }
