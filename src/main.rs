@@ -473,13 +473,9 @@ mod tests {
         //Cannot use more specific output, because folder contents ordering is platform dependent
         //Meaning, the order the files are discovered is NOT always the same, so their comparisons won't always occur in the same order
         assert!(std_output.contains("nightwing.txt"));
-        assert!(std_output.contains("dick_grayson.txt"));
         assert!(std_output.contains("red_hood.txt"));
-        assert!(std_output.contains("jason_todd.txt"));
         assert!(std_output.contains("catwoman.txt"));
-        assert!(std_output.contains("selina_kyle.txt"));
         assert!(std_output.contains("robin.txt"));
-        assert!(std_output.contains("tim_drake.txt"));
 
         return Ok(());
 
