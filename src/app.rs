@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs::DirEntry;
-use std::{fs, io};
+use std::{env, fs, io};
 use std::time::Instant;
 use chrono::NaiveDate;
 use terminal_fonts::to_block_string;
@@ -187,7 +187,10 @@ pub fn run() {
 
                     Ok(_) => {
 
-                        let file_separator: String = prompts::string_prompt("Enter the file separator character of your OS (\"/\" for Unix, \"\\\" for Windows):");
+                        let file_separator: String = match env::consts::OS.contains("windows") {
+                            true => String::from("\\"),
+                            false => String::from("/"),
+                        };
                         let cutoff_date: NaiveDate = prompts::date_prompt("Enter the cutoff date, formatted as YYYY-mm-dd (ex. 2020-01-01)");
 
                         let now: Instant = Instant::now();

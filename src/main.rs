@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::{self, DirEntry}, io, time::Instant};
+use std::{collections::HashMap, env, fs::{self, DirEntry}, io, time::Instant};
 
 use chrono::NaiveDate;
 use clap::Parser;
@@ -361,7 +361,10 @@ fn main() {
                 }
             }
 
-            let file_separator: String = String::from("/"); //FIXME
+            let file_separator: String = match env::consts::OS.contains("windows") {
+                true => String::from("\\"),
+                false => String::from("/"),
+            };
 
             let cutoff_date: NaiveDate;
             match cli.cutoff_date {
