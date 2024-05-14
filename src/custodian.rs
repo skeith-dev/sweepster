@@ -350,6 +350,7 @@ pub fn find_duplicates_by_name_excluding_ext(dir_path: &str, file_names: &mut Ha
                             match file_names.insert(file_name, entry) {
 
                                 Some(duplicate_file) => {
+                                    println!("{} == {}", duplicate_file.path().display(), original_file_path);
                                     duplicate_files.push( (duplicate_file, original_file_path) );
                                 },
 
