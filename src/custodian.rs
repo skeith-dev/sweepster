@@ -666,7 +666,7 @@ pub fn delete_found_files(files_of_criteria: &mut Vec<DirEntry>) {
 
 }
 
-pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>) {
+pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files_of_names: &mut Vec<DirEntry>, include_extension: bool) {
 
     let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
     match directory_result {
@@ -682,12 +682,15 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
                         if entry.path().is_dir() {
 
                             let directory_path: String = file_path_from_direntry(&entry);
-                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_names);
+                            find_files_of_given_names(directory_path.as_str(), file_names, files_of_names, include_extension);
 
                         } else {
 
-                            //TODO
-                            let file_name: String = file_name_including_extension_from_direntry(&entry);
+                            let file_name: String = match include_extension {
+                                true => file_name_including_extension_from_direntry(&entry),
+                                false => file_name_excluding_extension_from_direntry(&entry),
+                            };
+
                             if file_names.iter().any(|e| file_name == *e) {
 
                                 let file_path: String = file_path_from_direntry(&entry);

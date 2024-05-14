@@ -179,9 +179,17 @@ fn main() {
                                 },
                             }
 
+                            let mut include_extension: bool = false;
+                            match cli.include_extension {
+                                Some(ie) => {
+                                    include_extension = ie;
+                                },
+                                None => { },
+                            }
+
                             let now: Instant = Instant::now();
 
-                            custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria);
+                            custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria, include_extension);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);

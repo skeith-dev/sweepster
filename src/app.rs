@@ -112,10 +112,11 @@ pub fn run() {
                             1 => {
 
                                 let file_names: Vec<String> = prompts::strings_prompt("Enter the file names to search for, INCLUDING the file extension, separated by a single space:");
+                                let include_extension: bool = prompts::parse_prompt::<bool>("Include extensions as part of file names (enter \"true\" or \"false\")?");
 
                                 let now: Instant = Instant::now();
 
-                                custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria);
+                                custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria, include_extension);
 
                                 let elapsed: std::time::Duration = now.elapsed();
                                 println!("\nCompleted in {:.2?}", elapsed);
@@ -262,7 +263,7 @@ mod tests {
 
     
     #[test]
-    fn find_duplicates_by_name_including_ext_test() {
+    fn find_duplicates_by_name_including_extensions_test() {
 
         let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
         let mut file_cabinet: HashMap<String, Vec<DirEntry>> = app::set_up_file_cabinet(TEST_FOLDER_PATH);
@@ -290,7 +291,7 @@ mod tests {
     }
 
     #[test]
-    fn find_duplicates_by_name_excluding_ext_test() {
+    fn find_duplicates_by_name_excluding_extensions_test() {
 
         let mut file_names: HashMap<String, DirEntry> = HashMap::new();
         let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
@@ -355,12 +356,12 @@ mod tests {
     }
 
     #[test]
-    fn find_files_of_given_names_test() {
+    fn find_files_of_given_names_including_extensions_test() {
 
         let mut files_of_criteria: Vec<DirEntry> = vec![];
         let file_names: Vec<String> = vec![String::from("batman.txt"), String::from("catwoman.txt")];
 
-        custodian::find_files_of_given_names(TEST_FOLDER_PATH, &file_names, &mut files_of_criteria);
+        custodian::find_files_of_given_names(TEST_FOLDER_PATH, &file_names, &mut files_of_criteria, true);
 
         assert_eq!(files_of_criteria.len(), (BATMAN_FILES_COUNT + CATWOMAN_FILES_COUNT) as usize);
         for file_of_criteria in files_of_criteria {
