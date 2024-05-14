@@ -64,27 +64,54 @@ fn main() {
 
                         "by_name" => {
 
-                            //TODO
-
-                            let now: Instant = Instant::now();
-
-                            let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                            custodian::count_files_by_type(&target, &mut extension_counts);
-                            println!("\n{:?}", extension_counts);
-
-                            let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
-                            for (key, value) in extension_counts.into_iter() {
-                                file_cabinet.insert(key, Vec::with_capacity(value as usize));
+                            let mut include_extension: bool = false;
+                            match cli.include_extension {
+                                Some(ie) => {
+                                    include_extension = ie;
+                                },
+                                None => { },
                             }
 
-                            custodian::organize_files_by_type(&target, &mut file_cabinet);
+                            match include_extension {
 
-                            for value in file_cabinet.values_mut() {
-                                custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
+                                true => {
+
+                                    let now: Instant = Instant::now();
+
+                                    let mut extension_counts: HashMap<String, u32> = HashMap::new();
+                                    custodian::count_files_by_type(&target, &mut extension_counts);
+                                    println!("\n{:?}", extension_counts);
+
+                                    let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
+                                    for (key, value) in extension_counts.into_iter() {
+                                        file_cabinet.insert(key, Vec::with_capacity(value as usize));
+                                    }
+
+                                    custodian::organize_files_by_type(&target, &mut file_cabinet);
+
+                                    for value in file_cabinet.values_mut() {
+                                        custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
+                                    }
+
+                                    let elapsed: std::time::Duration = now.elapsed();
+                                    println!("\nCompleted in {:.2?}", elapsed);
+
+                                },
+
+                                false => {
+
+                                    let now: Instant = Instant::now();
+                                    
+                                    let mut file_names: HashMap<String, DirEntry> = HashMap::new();
+
+                                    custodian::find_duplicates_by_name_excluding_ext(&target, &mut file_names, &mut duplicate_files);
+
+                                    let elapsed: std::time::Duration = now.elapsed();
+                                    println!("\nCompleted in {:.2?}", elapsed);
+
+                                },
+
                             }
-
-                            let elapsed: std::time::Duration = now.elapsed();
-                            println!("\nCompleted in {:.2?}", elapsed);
 
                         },
 
@@ -456,10 +483,10 @@ mod tests {
     }
 
     #[test]
-    fn search_duplicates_by_name_success() -> Result<(), Box<dyn std::error::Error>> {
+    fn search_duplicates_by_name_including_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
+        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i").arg("true");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();

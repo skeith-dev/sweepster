@@ -16,8 +16,8 @@ pub fn run() {
     loop {
 
         let action: u8 = prompts::parse_prompt::<u8>("1. Search\n2. Sweep\n3. Store");
+        let option: u8;
         let criteria: u8;
-        let sub_criteria: u8;
         let target: String = prompts::string_prompt("Enter the path of the target directory:");
         
         match action {
@@ -25,16 +25,16 @@ pub fn run() {
             //Search or Sweep
             1..=2 => {
 
-                criteria = prompts::parse_prompt::<u8>("1. For duplicates\n2. By criteria");
+                option = prompts::parse_prompt::<u8>("1. For duplicates\n2. By criteria");
 
-                match criteria {
+                match option {
 
                     1 => {
 
-                        sub_criteria = prompts::parse_prompt::<u8>("1. By name\n2. By contents");
+                        criteria = prompts::parse_prompt::<u8>("1. By name\n2. By contents");
                         let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
 
-                        match sub_criteria {
+                        match criteria {
 
                             1 => {
 
@@ -102,11 +102,10 @@ pub fn run() {
                     //By criteria
                     2 => {
 
-                        sub_criteria = prompts::parse_prompt::<u8>("1. By name\n2. By type\n3. By last modified\n4. Empty directories");
+                        criteria = prompts::parse_prompt::<u8>("1. By name\n2. By type\n3. By last modified\n4. Empty directories");
                         let mut files_of_criteria: Vec<DirEntry> = vec![];
 
-                        //FIXME
-                        match sub_criteria {
+                        match criteria {
 
                             //By name
                             1 => {
