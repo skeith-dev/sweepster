@@ -29,7 +29,7 @@ fn file_path_from_direntry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_name_from_direntry(dir_entry: &DirEntry) -> String {
+fn file_name_including_extension_from_direntry(dir_entry: &DirEntry) -> String {
 
     let name_os_string: std::ffi::OsString = dir_entry.file_name();
 
@@ -42,6 +42,40 @@ fn file_name_from_direntry(dir_entry: &DirEntry) -> String {
 
         None => {
             println!("Could not parse DirEntry into file name String");
+            return String::from("");
+        },
+
+    }
+
+}
+
+pub fn file_name_excluding_extension_from_direntry(dir_entry: &DirEntry) -> String {
+
+    let path_buff: std::path::PathBuf = dir_entry.path();
+
+    let path_option: Option<&OsStr> = path_buff.file_stem();
+    match path_option {
+
+        Some(name_os_string) => {
+
+            let name_option: Option<&str> = name_os_string.to_str();
+            match name_option {
+
+                Some(file_name) => {
+                    return String::from(file_name);
+                },
+
+                None => {
+                    println!("Could not parse DirEntry into file name String");
+                    return String::from("");
+                },
+
+            }
+
+        },
+
+        None => {
+            println!("Could not get file_stem from PathBuf");
             return String::from("");
         },
 
@@ -254,7 +288,7 @@ pub fn organize_files_by_type(dir_path: &str, file_cabinet: &mut HashMap<String,
 //CLEANING FUNCTIONS
 /* ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** ***** */
 
-pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
+pub fn find_duplicates_by_name_including_ext(drawer: &mut Vec<DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
 
     let mut files_by_name: HashMap<String, DirEntry> = HashMap::new();
 
@@ -265,7 +299,7 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
 
             Some(file) => {
 
-                let file_name: String = file_name_from_direntry(&file);
+                let file_name: String = file_name_including_extension_from_direntry(&file);
                 let file_path: String = file_path_from_direntry(&file);
 
                 let duplicate_file_result: Option<DirEntry> = files_by_name.insert(file_name, file);
@@ -285,6 +319,61 @@ pub fn find_duplicates_by_name(drawer: &mut Vec<DirEntry>, duplicate_files: &mut
             None => println!("Could not pop file from file cabinet drawer"),
 
         }
+
+    }
+
+}
+
+pub fn find_duplicates_by_name_excluding_ext(dir_path: &str, file_names: &mut HashMap<String, DirEntry>, duplicate_files: &mut Vec<(DirEntry, String)>) {
+    
+    let directory_result: Result<fs::ReadDir, std::io::Error> = fs::read_dir(dir_path);
+    match directory_result {
+
+        Ok(directory) => {
+
+            for path in directory {
+
+                match path {
+
+                    Ok(entry) => {
+
+                        if entry.path().is_dir() {
+
+                            let directory_path: String = file_path_from_direntry(&entry);
+                            find_duplicates_by_name_excluding_ext(directory_path.as_str(), file_names, duplicate_files);
+
+                        } else {
+
+                            let file_name: String = file_name_excluding_extension_from_direntry(&entry);
+                            let original_file_path: String = file_path_from_direntry(&entry);
+
+                            match file_names.insert(file_name, entry) {
+
+                                Some(duplicate_file) => {
+                                    duplicate_files.push( (duplicate_file, original_file_path) );
+                                },
+
+                                None => { /* entry was successfully inserted into file_names */ },
+
+                            }
+
+                        }
+                        
+                    },
+
+                    Err(_) => {
+                        println!("Could not open directory or file in directory: {}", dir_path);
+                    }
+
+                }
+
+            }
+
+        },
+
+        Err(_) => {
+            println!("Could not open directory at path: {}", dir_path);
+        },
 
     }
 
@@ -597,7 +686,8 @@ pub fn find_files_of_given_names(dir_path: &str, file_names: &Vec<String>, files
 
                         } else {
 
-                            let file_name: String = file_name_from_direntry(&entry);
+                            //TODO
+                            let file_name: String = file_name_including_extension_from_direntry(&entry);
                             if file_names.iter().any(|e| file_name == *e) {
 
                                 let file_path: String = file_path_from_direntry(&entry);
@@ -807,7 +897,7 @@ pub fn generate_storage(target: &str, storage_path: &str, file_separator: &str, 
 
                         if entry.path().is_dir() {
 
-                            let entry_dir_name: String = file_name_from_direntry(&entry);
+                            let entry_dir_name: String = file_name_including_extension_from_direntry(&entry);
                             let entry_dir_path: String = file_path_from_direntry(&entry);
 
                             let mut new_dir_path: String = String::from(storage_path);
@@ -833,7 +923,7 @@ pub fn generate_storage(target: &str, storage_path: &str, file_separator: &str, 
                             let last_modified: NaiveDate = file_last_modified_from_direntry(&entry);
                             if last_modified < *cutoff_date {
                                 
-                                let entry_file_name: String = file_name_from_direntry(&entry);
+                                let entry_file_name: String = file_name_including_extension_from_direntry(&entry);
                                 let entry_file_path: String = file_path_from_direntry(&entry);
 
                                 let mut new_file_path: String = String::from(storage_path);
@@ -887,7 +977,7 @@ pub fn bundle_found_files(found_files: Vec<DirEntry>) -> Vec<[String; 4]> {
 
     found_files.into_iter().for_each(|file| {
 
-        let file_name: String = file_name_from_direntry(&file);
+        let file_name: String = file_name_including_extension_from_direntry(&file);
         let file_path: String = file_path_from_direntry(&file);
         let file_extension: String = file_extension_from_direntry(&file);
         let file_size: String = file_size_from_direntry(&file).to_string();
@@ -910,7 +1000,7 @@ pub fn bundle_duplicate_files(found_files: Vec<(DirEntry, String)>) -> Vec<[Stri
 
     found_files.into_iter().for_each( | (duplicate_file, original_file_path) | {
 
-        let file_name: String = file_name_from_direntry(&duplicate_file);
+        let file_name: String = file_name_including_extension_from_direntry(&duplicate_file);
         let file_path: String = file_path_from_direntry(&duplicate_file);
         let file_extension: String = file_extension_from_direntry(&duplicate_file);
         let file_size: String = file_size_from_direntry(&duplicate_file).to_string();

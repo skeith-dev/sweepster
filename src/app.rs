@@ -38,15 +38,38 @@ pub fn run() {
 
                             1 => {
 
+                                let include_extension: bool = prompts::parse_prompt::<bool>("Include extensions as part of file names (enter \"true\" or \"false\")?");
+
                                 let now: Instant = Instant::now();
-                                let mut file_cabinet: HashMap<String, Vec<DirEntry>> = set_up_file_cabinet(&target);
 
-                                for value in file_cabinet.values_mut() {
-                                    custodian::find_duplicates_by_name(value, &mut duplicate_files);
+                                match include_extension {
+
+                                    true => {
+
+                                        let mut file_cabinet: HashMap<String, Vec<DirEntry>> = set_up_file_cabinet(&target);
+
+                                        for value in file_cabinet.values_mut() {
+                                            custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
+                                        }
+
+                                        let elapsed: std::time::Duration = now.elapsed();
+                                        println!("\nCompleted in {:.2?}", elapsed);
+
+                                    },
+
+                                    false => {
+
+                                        let mut file_names: HashMap<String, DirEntry> = HashMap::new();
+
+                                        custodian::find_duplicates_by_name_excluding_ext(&target, &mut file_names, &mut duplicate_files);
+
+                                        let elapsed: std::time::Duration = now.elapsed();
+                                        println!("\nCompleted in {:.2?}", elapsed);
+
+                                    },
+
                                 }
-
-                                let elapsed: std::time::Duration = now.elapsed();
-                                println!("\nCompleted in {:.2?}", elapsed);
+                                
 
                             },
 
@@ -232,22 +255,23 @@ mod tests {
     const BATMAN_FILES_COUNT: u32 = 1;
     const CATWOMAN_FILES_COUNT: u32 = 2;
     const CSV_FILE_COUNT: u32 = 1;
-    const DUPLICATE_FILES_BY_NAME_COUNT: usize = 2;
+    const DUPLICATE_FILES_BY_NAME_INCLUDING_EXTENSION_COUNT: usize = 2;
+    const DUPLICATE_FILES_BY_NAME_EXCLUDING_EXTENSION_COUNT: usize = 4;
     const EMPTY_DIRECTORIES_COUNT: usize = 1;
     const PNG_FILE_COUNT: u32 = 2;
 
     
     #[test]
-    fn find_duplicates_by_name_test() {
+    fn find_duplicates_by_name_including_ext_test() {
 
         let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
         let mut file_cabinet: HashMap<String, Vec<DirEntry>> = app::set_up_file_cabinet(TEST_FOLDER_PATH);
 
         for value in file_cabinet.values_mut() {
-            custodian::find_duplicates_by_name(value, &mut duplicate_files);
+            custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
         }
 
-        assert_eq!(duplicate_files.len(), DUPLICATE_FILES_BY_NAME_COUNT);
+        assert_eq!(duplicate_files.len(), DUPLICATE_FILES_BY_NAME_INCLUDING_EXTENSION_COUNT);
         for (duplicate_file, original_file_path) in duplicate_files {
 
             let mut original_file_name: OsString = OsString::with_capacity(duplicate_file.file_name().len());
@@ -260,6 +284,54 @@ mod tests {
             }
 
             assert_eq!(duplicate_file.file_name(), original_file_name);
+
+        }
+
+    }
+
+    #[test]
+    fn find_duplicates_by_name_excluding_ext_test() {
+
+        let mut file_names: HashMap<String, DirEntry> = HashMap::new();
+        let mut duplicate_files: Vec<(DirEntry, String)> = vec![];
+
+        custodian::find_duplicates_by_name_excluding_ext(TEST_FOLDER_PATH, &mut file_names, &mut duplicate_files);
+
+        assert_eq!(duplicate_files.len(), DUPLICATE_FILES_BY_NAME_EXCLUDING_EXTENSION_COUNT);
+        for (duplicate_file, original_file_path) in duplicate_files {
+
+            let mut original_file_name: OsString = OsString::with_capacity(duplicate_file.file_name().len());
+
+            match Path::new(&original_file_path).file_name() {
+                Some(ofn) => {
+                    original_file_name.push(ofn);
+                },
+                None => { },
+            }
+
+            let mut original_file_name: String = String::new();
+            match Path::new(original_file_path.as_str()).file_stem() {
+
+                Some(original_file_name_osstr) => {
+
+                    match original_file_name_osstr.to_str() {
+                        Some(ofn) => {
+                            original_file_name = String::from(ofn);
+                        },
+                        None => {
+                            println!("Could not convert &OsStr to &str");
+                        },
+                    }
+                    
+                },
+
+                None => {
+                    println!("Could not get file_stem from Path");
+                },
+
+            }
+
+            assert_eq!(custodian::file_name_excluding_extension_from_direntry(&duplicate_file), original_file_name);
 
         }
 

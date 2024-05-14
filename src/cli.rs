@@ -19,13 +19,15 @@ pub struct Cli {
     pub print: Option<bool>,
     #[arg(short = 'v', long)]
     pub csv_path: Option<String>,
+    #[arg(short, long)]
+    pub include_extension: Option<bool>,
     #[arg(short = 'n', long)]
     pub file_names: Option<Vec<String>>,
     #[arg(short = 'e', long)]
-    pub file_types: Option<Vec<String>>,
+    pub file_extensions: Option<Vec<String>>,
     #[arg(short = 'd', long)]
     pub cutoff_date: Option<String>,
-    #[arg(short = 'r', long)]
+    #[arg(short, long)]
     pub storage_path: Option<String>,
 
 }

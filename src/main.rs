@@ -64,6 +64,8 @@ fn main() {
 
                         "by_name" => {
 
+                            //TODO
+
                             let now: Instant = Instant::now();
 
                             let mut extension_counts: HashMap<String, u32> = HashMap::new();
@@ -78,7 +80,7 @@ fn main() {
                             custodian::organize_files_by_type(&target, &mut file_cabinet);
 
                             for value in file_cabinet.values_mut() {
-                                custodian::find_duplicates_by_name(value, &mut duplicate_files);
+                                custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
                             }
 
                             let elapsed: std::time::Duration = now.elapsed();
@@ -188,10 +190,10 @@ fn main() {
 
                         "by_type" => {
 
-                            let file_types: Vec<String>;
-                            match cli.file_types {
-                                Some(ft) => {
-                                    file_types = ft;
+                            let file_extensions: Vec<String>;
+                            match cli.file_extensions {
+                                Some(fe) => {
+                                    file_extensions = fe;
                                 },
                                 None => {
                                     println!("Provide file types to search for!");
@@ -201,7 +203,7 @@ fn main() {
 
                             let now: Instant = Instant::now();
 
-                            custodian::find_files_of_given_types(&target, &file_types, &mut files_of_criteria);
+                            custodian::find_files_of_given_types(&target, &file_extensions, &mut files_of_criteria);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);
@@ -347,8 +349,8 @@ fn main() {
                 },
             }
 
-            let create_storage_result: Result<(), io::Error> = fs::create_dir(&storage_path);
-            match create_storage_result {
+            let create_archive_result: Result<(), io::Error> = fs::create_dir(&storage_path);
+            match create_archive_result {
 
                 Ok(_) => {
 
