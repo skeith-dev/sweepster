@@ -6,6 +6,7 @@ sweepster is a file custodian; a helpful tool which keeps your computer tidy and
 sweepster has performance in mind when it executes one of several different tasks, outlined below:
 
 ## Setup
+_TODO_
 
 ## Usage
 Sweepster is a command-line tool run like any other, such as "vi" or "nc". After correct setup, simply run "sweepster" in your command line, followed by flags.
@@ -37,9 +38,13 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
 - CSV_PATH *search only*
   - -v --csv-path
   - Specify a valid filepath to a csv file containing the results of the search
+- INCLUDE_EXTENSION
+  - -i --include-extension *by_name only*
+  - "true" - Include the file extension (ex. ".txt", ".pdf", ".jpeg") as part of file names
+  - "false" - Don't include the file extension as part of file names
 - FILE_NAMES
   - -n --file-names
-  - Specify file names to search for, including the file extension, separated by a single space
+  - Specify file names to search for, separated by a single space
 - FILE_TYPES
   - -e --file-types ("e" for extensions)
   - Specify file types (extensions) to search for, case-sensitive, separated by a single space
@@ -51,6 +56,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - Specify a valid filepath to a storage directory
 
 Running "sweepster -h" lists each of the different flag options, shown below:
+_UPDATEME_
 ```
 Options:
   -a, --action <ACTION>              
@@ -68,6 +74,6 @@ Options:
 ```
 ### Examples
 ```
--a search -t example/directory -o duplicates -c by_contents -p true
+sweepster -a search -t example/directory -o duplicates -c by_contents -p true
 ```
 Executing this command will **search** in the folder at **target** example/directory for (**option**) duplicate files based on the **criteria** of their file contents, **print**ing each comparison as it occurs
