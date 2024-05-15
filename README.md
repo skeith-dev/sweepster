@@ -25,7 +25,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - "by_criteria" - Identify files which match a given criteria.
 - CRITERIA
   - -c --criteria
-  - "by_name" - By file name (extension included)
+  - "by_name" - By file name
   - "by_contents" *duplicates only* - By the byte contents of the files
   - "by_type" *by_criteria only* - By file type (extension)
   - "by_last_modified" *by_criteria only* - Self explanatory :]
