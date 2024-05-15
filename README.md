@@ -56,6 +56,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - Specify a valid filepath to a storage directory
 
 Running "sweepster -h" lists each of the different flag options, shown below:
+
 _UPDATEME_
 ```
 Options:
