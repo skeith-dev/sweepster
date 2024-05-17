@@ -21,17 +21,6 @@ fn main() {
 
         "search" | "sweep" => 'search_or_sweep: {
 
-            let target: String;
-            match cli.target {
-                Some(t) => {
-                    target = t;
-                },
-                None => {
-                    println!("Provide a filepath to the target directory!");
-                    break 'search_or_sweep;
-                },
-            }
-
             let option: String;
             match cli.option {
                 Some(o) => {
@@ -64,22 +53,14 @@ fn main() {
 
                         "by_name" => {
 
-                            let mut include_extension: bool = false;
                             match cli.include_extension {
-                                Some(ie) => {
-                                    include_extension = ie;
-                                },
-                                None => { },
-                            }
-
-                            match include_extension {
 
                                 true => {
 
                                     let now: Instant = Instant::now();
 
                                     let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                                    custodian::count_files_by_type(&target, &mut extension_counts);
+                                    custodian::count_files_by_type(&cli.target, &mut extension_counts);
                                     println!("\n{:?}", extension_counts);
 
                                     let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
@@ -87,7 +68,7 @@ fn main() {
                                         file_cabinet.insert(key, Vec::with_capacity(value as usize));
                                     }
 
-                                    custodian::organize_files_by_type(&target, &mut file_cabinet);
+                                    custodian::organize_files_by_type(&cli.target, &mut file_cabinet);
 
                                     for value in file_cabinet.values_mut() {
                                         custodian::find_duplicates_by_name_including_ext(value, &mut duplicate_files);
@@ -104,7 +85,7 @@ fn main() {
                                     
                                     let mut file_names: HashMap<String, DirEntry> = HashMap::new();
 
-                                    custodian::find_duplicates_by_name_excluding_ext(&target, &mut file_names, &mut duplicate_files);
+                                    custodian::find_duplicates_by_name_excluding_ext(&cli.target, &mut file_names, &mut duplicate_files);
 
                                     let elapsed: std::time::Duration = now.elapsed();
                                     println!("\nCompleted in {:.2?}", elapsed);
@@ -117,18 +98,10 @@ fn main() {
 
                         "by_contents" => {
 
-                            let mut print: bool = false;
-                            match cli.print {
-                                Some(p) => {
-                                    print = p;
-                                },
-                                None => { },
-                            }
-
                             let now: Instant = Instant::now();
 
                             let mut extension_counts: HashMap<String, u32> = HashMap::new();
-                            custodian::count_files_by_type(&target, &mut extension_counts);
+                            custodian::count_files_by_type(&cli.target, &mut extension_counts);
                             println!("\n{:?}", extension_counts);
 
                             let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
@@ -136,10 +109,10 @@ fn main() {
                                 file_cabinet.insert(key, Vec::with_capacity(value as usize));
                             }
 
-                            custodian::organize_files_by_type(&target, &mut file_cabinet);
+                            custodian::organize_files_by_type(&cli.target, &mut file_cabinet);
 
                             for value in file_cabinet.values_mut() {
-                                custodian::find_duplicates_by_contents(value, &mut duplicate_files, print);
+                                custodian::find_duplicates_by_contents(value, &mut duplicate_files, cli.print);
                             }
 
                             let elapsed: std::time::Duration = now.elapsed();
@@ -206,17 +179,9 @@ fn main() {
                                 },
                             }
 
-                            let mut include_extension: bool = false;
-                            match cli.include_extension {
-                                Some(ie) => {
-                                    include_extension = ie;
-                                },
-                                None => { },
-                            }
-
                             let now: Instant = Instant::now();
 
-                            custodian::find_files_of_given_names(&target, &file_names, &mut files_of_criteria, include_extension);
+                            custodian::find_files_of_given_names(&cli.target, &file_names, &mut files_of_criteria, cli.include_extension);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);
@@ -238,7 +203,7 @@ fn main() {
 
                             let now: Instant = Instant::now();
 
-                            custodian::find_files_of_given_types(&target, &file_extensions, &mut files_of_criteria);
+                            custodian::find_files_of_given_types(&cli.target, &file_extensions, &mut files_of_criteria);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);
@@ -270,7 +235,7 @@ fn main() {
 
                             let now: Instant = Instant::now();
 
-                            custodian::find_files_last_modifed_before(&target, &cutoff_date, &mut files_of_criteria);
+                            custodian::find_files_last_modifed_before(&cli.target, &cutoff_date, &mut files_of_criteria);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);
@@ -281,7 +246,7 @@ fn main() {
 
                             let now: Instant = Instant::now();
 
-                            custodian::find_empty_directories(&target, &mut files_of_criteria);
+                            custodian::find_empty_directories(&cli.target, &mut files_of_criteria);
 
                             let elapsed: std::time::Duration = now.elapsed();
                             println!("\nCompleted in {:.2?}", elapsed);
@@ -339,17 +304,6 @@ fn main() {
 
         "store" => 'store: {
 
-            let target: String;
-            match cli.target {
-                Some(t) => {
-                    target = t;
-                },
-                None => {
-                    println!("Provide a filepath to the target directory!");
-                    break 'store;
-                },
-            }
-
             let storage_path: String;
             match cli.storage_path {
                 Some(sp) => {
@@ -394,7 +348,7 @@ fn main() {
 
                     let now: Instant = Instant::now();
 
-                    custodian::generate_storage(&target, &storage_path, &file_separator, &cutoff_date);
+                    custodian::generate_storage(&cli.target, &storage_path, &file_separator, &cutoff_date);
 
                     let elapsed: std::time::Duration = now.elapsed();
                     println!("\nCompleted in {:.2?}", elapsed);
@@ -489,7 +443,7 @@ mod tests {
     fn search_duplicates_by_name_including_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i").arg("true");
+        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();

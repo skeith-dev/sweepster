@@ -6,7 +6,7 @@ use clap::Parser;
 pub struct Cli {
 
     pub action: String,
-    pub target: Option<String>,
+    pub target: String,
     
     #[arg(short, long)]
     pub option: Option<String>,
@@ -19,10 +19,10 @@ pub struct Cli {
     #[arg(short = 'd', long)]
     pub cutoff_date: Option<String>,
 
-    #[arg(short, long)]
-    pub include_extension: Option<bool>,
-    #[arg(short, long)]
-    pub print: Option<bool>,
+    #[arg(short, long, default_value_t = false)]
+    pub include_extension: bool,
+    #[arg(short, long, default_value_t = false)]
+    pub print: bool,
     #[arg(short = 'v', long)]
     pub csv_path: Option<String>,
     #[arg(short, long)]
