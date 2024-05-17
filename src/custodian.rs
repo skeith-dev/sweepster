@@ -418,21 +418,26 @@ pub fn find_duplicates_by_contents(drawer: &mut Vec<DirEntry>, duplicate_files: 
 
     }
 
+    println!("{:?}", files_by_size);
+
     for value in files_by_size.values_mut() {
 
         for i in 0..value.len() {
 
-            for j in (i + 1)..value.len() {
+            if i >= value.len() {
+                break;
+            }
 
-                if i >= value.len() || j >= value.len() {
-                    continue;
-                }
+            let mut j: usize = i + 1;
+            while j < value.len() {
 
                 if compare_two_files_by_contents_given_direntries(&value[i], &value[j], print_flag) {
 
                     let duplicate_file: DirEntry = value.remove(j);
                     duplicate_files.push( (duplicate_file, file_path_from_direntry(&value[i])) );
                     
+                } else {
+                    j += 1;
                 }
 
             }
