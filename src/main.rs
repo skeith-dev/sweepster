@@ -437,7 +437,7 @@ mod tests {
     fn invalid_action_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("non_existent_action").arg("-t").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        cmd.arg("non_existent_action").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
 
         let output: std::process::Output = cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid action!"));
@@ -450,7 +450,7 @@ mod tests {
     fn invalid_target_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command =  Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test/non_existent_directory").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        cmd.arg("search").arg("test/non_existent_directory").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
         
         let output: std::process::Output =  cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Could not open directory at path"));
@@ -463,7 +463,7 @@ mod tests {
     fn invalid_option_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command =  Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("non_existent_option").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        cmd.arg("search").arg("test").arg("-o").arg("non_existent_option").arg("-c").arg("by_name").arg("-n").arg("file.txt");
         
         let output: std::process::Output =  cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid option!"));
@@ -476,7 +476,7 @@ mod tests {
     fn invalid_criteria_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_non_existent_criteria").arg("-n").arg("file.txt");
+        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_non_existent_criteria").arg("-n").arg("file.txt");
 
         let output: std::process::Output = cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid criteria!"));
@@ -489,7 +489,7 @@ mod tests {
     fn search_duplicates_by_name_including_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i").arg("true");
+        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i").arg("true");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
@@ -505,7 +505,7 @@ mod tests {
     fn search_duplicates_by_contents_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("-a").arg("search").arg("-t").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_contents");
+        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_contents");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
