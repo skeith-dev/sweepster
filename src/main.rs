@@ -450,6 +450,7 @@ mod tests {
 
         assert!(std_output.contains("catwoman.txt"));
         assert!(std_output.contains("red_hood.txt"));
+
         assert!(!std_output.contains("batman.txt"));
         assert!(!std_output.contains("batman.png"));
         assert!(!std_output.contains("robin.txt"));
@@ -516,6 +517,38 @@ mod tests {
         assert!(std_output.contains("test/sidekicks/red_hood.txt"));
         assert!(std_output.contains("test/villains/catwoman.txt"));
         assert!(std_output.contains("test/villains/red_hood.txt"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn search_by_criteria_by_type_success() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_type").arg("-e").arg("png csv");
+
+        let output: std::process::Output = cmd.output()?;
+        let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        assert!(std_output.contains("vehicles.csv"));
+        assert!(std_output.contains("batman.png"));
+        assert!(std_output.contains("robin.png"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn search_by_criteria_empty_directories_success() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("empty_directories");
+
+        let output: std::process::Output = cmd.output()?;
+        let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        assert!(std_output.contains("better_superheroes"));
 
         return Ok(());
 
