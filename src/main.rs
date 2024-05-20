@@ -443,6 +443,22 @@ mod tests {
     fn search_duplicates_by_name_including_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i");
+
+        let output: std::process::Output = cmd.output()?;
+        let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
+
+        assert!(std_output.contains("catwoman.txt"));
+        assert!(std_output.contains("red_hood.txt"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn search_duplicates_by_name_excluding_extension_success() -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
         cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
 
         let output: std::process::Output = cmd.output()?;
@@ -450,6 +466,10 @@ mod tests {
 
         assert!(std_output.contains("catwoman.txt"));
         assert!(std_output.contains("red_hood.txt"));
+        assert!(std_output.contains("batman.txt"));
+        assert!(std_output.contains("batman.png"));
+        assert!(std_output.contains("robin.txt"));
+        assert!(std_output.contains("robin.png"));
 
         return Ok(());
 
