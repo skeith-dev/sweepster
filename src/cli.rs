@@ -12,9 +12,9 @@ pub struct Cli {
     pub option: Option<String>,
     #[arg(short, long)]
     pub criteria: Option<String>,
-    #[arg(short = 'n', long)]
+    #[arg(short = 'n', long, value_delimiter = ' ')]
     pub file_names: Option<Vec<String>>,
-    #[arg(short = 'e', long)]
+    #[arg(short = 'e', long, value_delimiter = ' ')]
     pub file_extensions: Option<Vec<String>>,
     #[arg(short = 'd', long)]
     pub cutoff_date: Option<String>,
