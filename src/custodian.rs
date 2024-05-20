@@ -29,7 +29,7 @@ fn file_path_from_direntry(dir_entry: &DirEntry) -> String {
 
 }
 
-fn file_name_including_extension_from_direntry(dir_entry: &DirEntry) -> String {
+pub fn file_name_including_extension_from_direntry(dir_entry: &DirEntry) -> String {
 
     let name_os_string: std::ffi::OsString = dir_entry.file_name();
 

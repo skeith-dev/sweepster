@@ -384,9 +384,36 @@ fn main() {
 mod tests {
 
     use assert_cmd::cargo::CommandCargoExt;
-    use std::process::Command;
+    use chrono::{Duration, Utc};
+    use std::{env, fs::{self, DirEntry, File}, process::Command};
+
+    use crate::custodian;
+
+    const JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH: &str = "justice_league_test";
 
 
+    fn setup_justice_league(test_directory_path: &mut String, file_separator: &String) -> Result<(), Box<dyn std::error::Error>> {
+
+        test_directory_path.push_str(&file_separator);
+        test_directory_path.push_str("justice_league");
+        fs::create_dir_all(test_directory_path.as_str())?;
+
+        let mut superman_file_path: String = String::new();
+        superman_file_path.push_str(&test_directory_path);
+        superman_file_path.push_str(&file_separator);
+        superman_file_path.push_str("superman.txt");
+        File::create(superman_file_path.as_str())?;
+
+        let mut wonder_woman_file_path: String = String::new();
+        wonder_woman_file_path.push_str(&test_directory_path);
+        wonder_woman_file_path.push_str(&file_separator);
+        wonder_woman_file_path.push_str("wonder_woman.txt");
+        File::create(wonder_woman_file_path.as_str())?;
+
+        return Ok(());
+
+    }
+    
     #[test]
     fn invalid_action_failure() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -549,6 +576,37 @@ mod tests {
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
 
         assert!(std_output.contains("better_superheroes"));
+
+        return Ok(());
+
+    }
+
+    #[test]
+    fn store_success() -> Result<(), Box<dyn std::error::Error>> {
+
+        let file_separator: String = match env::consts::OS.contains("windows") {
+            true => String::from("\\"),
+            false => String::from("/"),
+        };
+        let tomorrow_date: chrono::prelude::DateTime<Utc> = Utc::now() + Duration::days(1);
+
+        let mut test_directory_path: String = String::from("test");
+
+        setup_justice_league(&mut test_directory_path, &file_separator)?;
+
+        let mut cmd: Command = Command::cargo_bin("sweepster")?;
+        cmd.arg("store").arg(test_directory_path.as_str()).arg("-s").arg(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH).arg("-d").arg(tomorrow_date.format("%Y-%m-%d").to_string().as_str());
+        cmd.output()?;
+
+        let mut files_of_criteria: Vec<DirEntry> = vec![];
+        custodian::find_files_of_given_names(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH, &(vec![String::from("superman.txt"), String::from("wonder_woman.txt")]), &mut files_of_criteria, true);
+
+        for file in files_of_criteria {
+            assert!( custodian::file_name_including_extension_from_direntry(&file) == String::from("superman.txt") || custodian::file_name_including_extension_from_direntry(&file) == String::from("wonder_woman.txt") )
+        }
+
+        fs::remove_dir_all(test_directory_path)?;
+        fs::remove_dir_all(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH)?;
 
         return Ok(());
 
