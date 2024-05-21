@@ -1106,7 +1106,7 @@ mod tests {
     const NUMBER_OF_FILE_TYPES: u32 = 3;
 
     const CSV_FILES_COUNT: u32 = 1;
-    const PNG_FILE_COUNT: u32 = 2;
+    const PNG_FILES_COUNT: u32 = 2;
     const TEXT_FILES_COUNT: u32 = 11;
 
 
@@ -1145,7 +1145,7 @@ mod tests {
 
         assert_eq!(extension_counts.len(), NUMBER_OF_FILE_TYPES as usize);
         assert_eq!(csv_count, CSV_FILES_COUNT);
-        assert_eq!(png_count, PNG_FILE_COUNT);
+        assert_eq!(png_count, PNG_FILES_COUNT);
         assert_eq!(txt_count, TEXT_FILES_COUNT);
 
     }
