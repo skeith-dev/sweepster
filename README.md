@@ -44,5 +44,9 @@ Options:
 ```
 sweepster search example/directory -o duplicates -c by_contents -p
 ```
+Executing this command will **search** the folder at **target** example/directory for (**option**) duplicate files based on the **criteria** of their file contents, **print**ing each comparison as it occurs
 
-Executing this command will **search** in the folder at **target** example/directory for (**option**) duplicate files based on the **criteria** of their file contents, **print**ing each comparison as it occurs
+```
+sweepster sweep example/directory -o by_criteria -c by_name -n test testing
+```
+Executing this command will **sweep** the folder at **target** example/directory for (**option**) files which have are named any of the following: test, testing (file extension **include-extension** NOT included)
