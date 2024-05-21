@@ -1102,7 +1102,7 @@ mod tests {
 
     use super::*;
     
-    const TEST_FOLDER_PATH: &str = "test";
+    const TEST_DIRECTORY_PATH: &str = "test";
     const NUMBER_OF_FILE_TYPES: u32 = 3;
 
     const CSV_FILES_COUNT: u32 = 1;
@@ -1118,7 +1118,7 @@ mod tests {
         let mut png_count: u32 = 0;
         let mut txt_count: u32 = 0;
 
-        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
+        count_files_by_type(TEST_DIRECTORY_PATH, &mut extension_counts);
 
         print!("{:?}", extension_counts);
 
@@ -1154,14 +1154,14 @@ mod tests {
     fn test_organize_files_by_type() {
 
         let mut extension_counts: HashMap<String, u32> = HashMap::new();
-        count_files_by_type(TEST_FOLDER_PATH, &mut extension_counts);
+        count_files_by_type(TEST_DIRECTORY_PATH, &mut extension_counts);
 
         let mut file_cabinet: HashMap<String, Vec<DirEntry>> = HashMap::with_capacity(extension_counts.len());
         for (key, value) in extension_counts.into_iter() {
             file_cabinet.insert(key, Vec::with_capacity(value as usize));
         }
 
-        organize_files_by_type(TEST_FOLDER_PATH, &mut file_cabinet);
+        organize_files_by_type(TEST_DIRECTORY_PATH, &mut file_cabinet);
 
         for (file_extension, files_of_type) in file_cabinet.iter() {
             for file in files_of_type {

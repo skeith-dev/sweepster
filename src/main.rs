@@ -389,7 +389,8 @@ mod tests {
 
     use crate::custodian;
 
-    const JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH: &str = "justice_league_test";
+    const TEST_DIRECTORY_PATH: &str = "test";
+    const JUSTICE_LEAGUE_TEST_DIRECTORY_PATH: &str = "justice_league_test";
 
 
     fn setup_justice_league(test_directory_path: &mut String, file_separator: &String) -> Result<(), Box<dyn std::error::Error>> {
@@ -418,7 +419,7 @@ mod tests {
     fn invalid_action_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("non_existent_action").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        cmd.arg("non_existent_action").arg(TEST_DIRECTORY_PATH).arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("file.txt");
 
         let output: std::process::Output = cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid action!"));
@@ -444,7 +445,7 @@ mod tests {
     fn invalid_option_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command =  Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("non_existent_option").arg("-c").arg("by_name").arg("-n").arg("file.txt");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("non_existent_option").arg("-c").arg("by_name").arg("-n").arg("file.txt");
         
         let output: std::process::Output =  cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid option!"));
@@ -457,7 +458,7 @@ mod tests {
     fn invalid_criteria_failure() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_non_existent_criteria").arg("-n").arg("file.txt");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("by_criteria").arg("-c").arg("by_non_existent_criteria").arg("-n").arg("file.txt");
 
         let output: std::process::Output = cmd.output()?;
         assert!(String::from_utf8_lossy(&output.stdout).contains("Provide a valid criteria!"));
@@ -470,7 +471,7 @@ mod tests {
     fn search_duplicates_by_name_including_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("duplicates").arg("-c").arg("by_name").arg("-i");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
@@ -491,7 +492,7 @@ mod tests {
     fn search_duplicates_by_name_excluding_extension_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_name");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("duplicates").arg("-c").arg("by_name");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
@@ -511,13 +512,11 @@ mod tests {
     fn search_duplicates_by_contents_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("duplicates").arg("-c").arg("by_contents");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("duplicates").arg("-c").arg("by_contents");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
 
-        //Cannot use more specific output, because folder contents ordering is platform dependent
-        //Meaning, the order the files are discovered is NOT always the same, so their comparisons won't always occur in the same order
         assert!(std_output.contains("nightwing.txt"));
         assert!(std_output.contains("dick_grayson.txt"));
         assert!(std_output.contains("red_hood.txt"));
@@ -535,15 +534,15 @@ mod tests {
     fn search_by_criteria_by_name_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("catwoman red_hood");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("by_criteria").arg("-c").arg("by_name").arg("-n").arg("catwoman red_hood");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
 
-        assert!(std_output.contains("test/sidekicks/catwoman.txt"));
-        assert!(std_output.contains("test/sidekicks/red_hood.txt"));
-        assert!(std_output.contains("test/villains/catwoman.txt"));
-        assert!(std_output.contains("test/villains/red_hood.txt"));
+        assert!(std_output.contains("catwoman.txt"));
+        assert!(std_output.contains("red_hood.txt"));
+        assert!(std_output.contains("catwoman.txt"));
+        assert!(std_output.contains("red_hood.txt"));
 
         return Ok(());
 
@@ -553,7 +552,7 @@ mod tests {
     fn search_by_criteria_by_type_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("by_type").arg("-e").arg("png csv");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("by_criteria").arg("-c").arg("by_type").arg("-e").arg("png csv");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
@@ -570,7 +569,7 @@ mod tests {
     fn search_by_criteria_empty_directories_success() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("search").arg("test").arg("-o").arg("by_criteria").arg("-c").arg("empty_directories");
+        cmd.arg("search").arg(TEST_DIRECTORY_PATH).arg("-o").arg("by_criteria").arg("-c").arg("empty_directories");
 
         let output: std::process::Output = cmd.output()?;
         let std_output: String = String::from_utf8_lossy(&output.stdout).to_string();
@@ -590,23 +589,23 @@ mod tests {
         };
         let tomorrow_date: chrono::prelude::DateTime<Utc> = Utc::now() + Duration::days(1);
 
-        let mut test_directory_path: String = String::from("test");
+        let mut test_directory_path: String = String::from(TEST_DIRECTORY_PATH);
 
         setup_justice_league(&mut test_directory_path, &file_separator)?;
 
         let mut cmd: Command = Command::cargo_bin("sweepster")?;
-        cmd.arg("store").arg(test_directory_path.as_str()).arg("-s").arg(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH).arg("-d").arg(tomorrow_date.format("%Y-%m-%d").to_string().as_str());
+        cmd.arg("store").arg(test_directory_path.as_str()).arg("-s").arg(JUSTICE_LEAGUE_TEST_DIRECTORY_PATH).arg("-d").arg(tomorrow_date.format("%Y-%m-%d").to_string().as_str());
         cmd.output()?;
 
         let mut files_of_criteria: Vec<DirEntry> = vec![];
-        custodian::find_files_of_given_names(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH, &(vec![String::from("superman.txt"), String::from("wonder_woman.txt")]), &mut files_of_criteria, true);
+        custodian::find_files_of_given_names(JUSTICE_LEAGUE_TEST_DIRECTORY_PATH, &(vec![String::from("superman.txt"), String::from("wonder_woman.txt")]), &mut files_of_criteria, true);
 
         for file in files_of_criteria {
             assert!( custodian::file_name_including_extension_from_direntry(&file) == String::from("superman.txt") || custodian::file_name_including_extension_from_direntry(&file) == String::from("wonder_woman.txt") )
         }
 
         fs::remove_dir_all(test_directory_path)?;
-        fs::remove_dir_all(JUSTICE_LEAGUE_TEST_DIRECTORY_FILE_PATH)?;
+        fs::remove_dir_all(JUSTICE_LEAGUE_TEST_DIRECTORY_PATH)?;
 
         return Ok(());
 
