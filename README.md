@@ -9,7 +9,7 @@ sweepster has performance in mind when it executes one of several different task
 
 ## Setup
 
-To setup sweepster such that it is an available command from the command line, move the executable file (sweepster [Unix], sweepster.exe [Windows]) to the appropriate platform-dependent directory which houses command-line executable files. For Unix, this is typically TODO. For Windows, this TODO.
+To setup sweepster as an available command from the command line, move the executable file (sweepster [Unix], sweepster.exe [Windows]) to the appropriate platform-dependent directory which houses command-line executable files. For Unix, this is typically /bin or /usr/bin. For Windows, this is typically C:\WINDOWS\System32; however, any directory which is a PATH system variable will work. The PATH is the system variable that your operating system uses to locate needed executables from the command line or Terminal window.
 
 ## Usage
 
