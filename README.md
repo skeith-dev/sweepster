@@ -41,7 +41,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - -n --file-names
   - Specify file names to search for, separated by a single space
 - FILE_EXTENSIONS
-  - -e --file-types ("e" for extensions)
+  - -e --file-extensions
   - Specify file types (extensions) to search for, case-sensitive, separated by a single space
 - CUTOFF_DATE
   - -d --cutoff-date
