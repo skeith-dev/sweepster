@@ -15,6 +15,7 @@ To setup sweepster as an available command from the command line, move the execu
 
 Sweepster is a command-line tool run like any other, such as "vi" or "nc". After correct setup, simply run "sweepster" in your command line with an ACTION and a TARGET, followed by flags.
 
+### ARGUMENTS
 - ACTION
   - -a --action
   - "search" - Self explanatory :]
@@ -24,7 +25,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - -t --target
   - Specify a valid filepath to a target directory. A target directory is the directory upon which the action is being taken.
 
-
+### OPTIONS
 - OPTION
   - -o --option
   - "duplicates" - Identify files which are duplicates of one another based on a given criteria.
