@@ -5,7 +5,7 @@
 ## Description
 
 sweepster is a file custodian; a helpful tool which keeps your computer tidy and free of clutter! Written in Rust,
-sweepster has performance in mind when it executes one of several different tasks, outlined below:
+sweepster is designed with performance in-mind.
 
 ## Setup
 
