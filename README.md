@@ -9,7 +9,7 @@ sweepster has performance in mind when it executes one of several different task
 
 ## Setup
 
-_TODO_
+To setup sweepster such that it is an available command from the command line, move the executable file (sweepster [Unix], sweepster.exe [Windows]) to the appropriate platform-dependent directory which houses command-line executable files. For Unix, this is typically TODO. For Windows, this TODO.
 
 ## Usage
 
@@ -49,4 +49,4 @@ Executing this command will **search** the folder at **target** example/director
 ```
 sweepster sweep example/directory -o by_criteria -c by_name -n test testing
 ```
-Executing this command will **sweep** the folder at **target** example/directory for (**option**) files which have are named any of the following: test, testing (file extension **include-extension** NOT included)
+Executing this command will **sweep** the folder at **target** example/directory for (**option**) files which are (**criteria**) **name**d any of the following: test, testing (file extension [**include-extension**] NOT included)
