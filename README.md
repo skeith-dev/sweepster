@@ -21,6 +21,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - "search" - Self explanatory :)
   - "sweep" - Delete files
   - "store" - Create an "archive" of a specified directory. An archive is a new folder which has an identical folder structure as the original, and which contains all files from the original which were last modified before a given cutoff date
+  - "Sweepster" - Runs the application in a more user-friendly, menu-and-prompt-style interface.
 - TARGET
   - -t --target
   - Specify a valid filepath to a target directory. A target directory is the directory upon which the action is being taken.
