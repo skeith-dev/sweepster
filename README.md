@@ -13,9 +13,51 @@ To setup sweepster as an available command from the command line, move the execu
 
 ## Usage
 
-Sweepster is a command-line tool run like any other, such as "vi" or "nc". After correct setup, simply run "sweepster" in your command line, followed by flags.
+Sweepster is a command-line tool run like any other, such as "vi" or "nc". After correct setup, simply run "sweepster" in your command line with an ACTION and a TARGET, followed by flags.
 
-_FIXME_
+- ACTION
+  - -a --action
+  - "search" - Self explanatory :]
+  - "sweep" - Delete files
+  - "store" - Create an "archive" of a specified directory. An archive is a new folder which has an identical folder structure as the original, and which contains all files from the original which were last modified before a given cutoff date
+- TARGET
+  - -t --target
+  - Specify a valid filepath to a target directory. A target directory is the directory upon which the action is being taken.
+
+- OPTION
+  - -o --option
+  - "duplicates" - Identify files which are duplicates of one another based on a given criteria.
+  - "by_criteria" - Identify files which match a given criteria.
+- CRITERIA
+  - -c --criteria
+  - "by_name" - By file name (extension included)
+  - "by_contents" *duplicates only* - By the byte contents of the files
+  - "by_type" *by_criteria only* - By file type (extension)
+  - "by_last_modified" *by_criteria only* - Self explanatory :]
+  - "empty_directories" *by_criteria only* - Self explanatory :]
+- FILE_NAMES
+  - -n --file-names
+  - Specify file names to search for, separated by a single space
+- FILE_EXTENSIONS
+  - -e --file-types ("e" for extensions)
+  - Specify file types (extensions) to search for, case-sensitive, separated by a single space
+- CUTOFF_DATE
+  - -d --cutoff-date
+  - Specify a cutoff date to search for, or to create an archive from; format as YYYY-mm-dd
+- INCLUDE_EXTENSION
+  - -i --include-extension
+  - Present - Include the file extension as part of the file name
+  - Not present - Don't include the file extension as part of the file name
+- PRINT
+  - -p --print *by_contents only*
+  - Present - Print every file comparison as it occurs; nice for checking progress
+  - Not present - Don't print file comparisons; only print matches
+- CSV_PATH
+  - -v --csv-path
+  - Specify a valid filepath to a csv file containing the results of the search
+- STORAGE_PATH
+  - -s --storage-path
+  - Specify a valid filepath to a storage directory
 
 Running "sweepster -h" lists each of the different flag options, shown below:
 ```
