@@ -18,7 +18,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
 ### ARGUMENTS
 - ACTION
   - -a --action
-  - "search" - Self explanatory :]
+  - "search" - Self explanatory :)
   - "sweep" - Delete files
   - "store" - Create an "archive" of a specified directory. An archive is a new folder which has an identical folder structure as the original, and which contains all files from the original which were last modified before a given cutoff date
 - TARGET
@@ -33,10 +33,10 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
 - CRITERIA
   - -c --criteria
   - "by_name" - By file name (extension included)
-  - "by_contents" *duplicates only* - By the byte contents of the files
-  - "by_type" *by_criteria only* - By file type (extension)
-  - "by_last_modified" *by_criteria only* - Self explanatory :]
-  - "empty_directories" *by_criteria only* - Self explanatory :]
+  - "by_contents" - By the byte contents of the files
+  - "by_type" - By file type (extension)
+  - "by_last_modified" - Self explanatory :)
+  - "empty_directories" - Self explanatory :)
 - FILE_NAMES
   - -n --file-names
   - Specify file names to search for, separated by a single space
@@ -51,7 +51,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - Present - Include the file extension as part of the file name
   - Not present - Don't include the file extension as part of the file name
 - PRINT
-  - -p --print *by_contents only*
+  - -p --print [*by_contents only*]
   - Present - Print every file comparison as it occurs; nice for checking progress
   - Not present - Don't print file comparisons; only print matches
 - CSV_PATH
