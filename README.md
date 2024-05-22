@@ -24,6 +24,7 @@ Sweepster is a command-line tool run like any other, such as "vi" or "nc". After
   - -t --target
   - Specify a valid filepath to a target directory. A target directory is the directory upon which the action is being taken.
 
+
 - OPTION
   - -o --option
   - "duplicates" - Identify files which are duplicates of one another based on a given criteria.
